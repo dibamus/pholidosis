@@ -1,0 +1,11 @@
+Package: pholidosis
+Type: Package
+Title: Scale Network Import and Analysis
+Version: 0.1.0
+Author: Isaac Krone
+Maintainer: Isaac Krone <isaacwkrone@gmail.com>
+Description: pholidosis works with planar biological networks with a known homology structure.
+    It is built for analysis of squamate scalation networks.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
