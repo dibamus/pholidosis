@@ -9,3 +9,5 @@ Description: pholidosis works with planar biological networks with a known homol
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/dibamus/pholidosis
+BugReports: https://github.com/dibamus/pholidosis/issues
