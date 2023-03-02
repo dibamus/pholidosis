@@ -4,6 +4,8 @@ Title: Scale Network Import and Analysis
 Version: 0.1.0
 Author: Isaac Krone
 Maintainer: Isaac Krone <isaacwkrone@gmail.com>
+Depends: igraph 
+Imports: tidyverse, stringr, dplyr, readxl, tibble
 Description: pholidosis works with planar biological networks with a known homology structure.
     It is built for analysis of squamate scalation networks.
 License: GPL (>= 3)
@@ -11,3 +13,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/dibamus/pholidosis
 BugReports: https://github.com/dibamus/pholidosis/issues
+RoxygenNote: 7.2.3

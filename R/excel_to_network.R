@@ -1,6 +1,8 @@
-#library("readxl")
-#source("Scripts/importScaleNetwork.R")
-#source("Scripts/verifyMatrix.R")
+#' Import a scale network or many scale networks from an excel file
+#' @import igraph tidyverse readxl stats
+#' @param filename A character vector specifying the file path of the excel file.
+#' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
+#' @return A list of igraph objects, one for each sheet in the file.
 
 #IMPORT FROM EXCEL
 excel_to_network <- function(filename, verbose = FALSE) {

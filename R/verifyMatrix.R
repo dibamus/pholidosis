@@ -1,6 +1,11 @@
-#Find problems in scale table
+#' Find problems in a scale table
+#' @import tidyverse tibble
+#' @param df A data frame, the scale table.
+#' @param verbose A logical scalar. If TRUE, it prints progress & errors.
+#' @return A data frame, either the original (df), the original data frame modified
+#'    to work with other pholidosis functions, or a dummy data frame "bad.input.matrix" =1
+
 verifyMatrix <- function(df, verbose = TRUE){
-  require("tibble")
   if(!has_rownames(df)){
     df <- df %>% column_to_rownames("scale name")
   }
@@ -32,7 +37,7 @@ verifyMatrix <- function(df, verbose = TRUE){
     df <- df[,-check_names$index[which(is.na(check_names$rowName))]]
 
     if(verbose){cat("\n reverifying matrix")}
-    verifyMatrix(df[,-emptycol])
+    verifyMatrix(df)
   }
 
   #are there non-numeric data in the matrix?

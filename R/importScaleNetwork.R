@@ -1,13 +1,12 @@
-require("igraph")
-#require("ggraph")
-require("stringr")
-#source("Scripts/clean_isolates.R")
+#' This loads a dataframe (df) of scale relationships as an igraph object
+#' @import igraph stringr tidyverse
+#' @param df A data frame, the scale table.
+#' @param checkAsymmetry A logical scalar, if TRUE, the function checks whether
+#' df is a symmetric matrix
+#' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
+#' @return An igraph object, the scale network.
 
-# This loads a dataframe (df) of scale relationships as an igraph
-
-scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE,
-                          firstscale = "rostral",
-                          lastscale = "mental"){
+scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE){
   mat <-as.matrix(df) # read in adjacency matrix file
   mat[is.na(mat)] <- 0 # set all NA links to 0
 
@@ -45,38 +44,7 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE,
 
       graph <- lizard_setup(graph)
 
-      ####LAYOUT####
-
-      lay <- create_layout(graph, layout = "linear") #construct layout for plotting
-      #X COORD
-      lay[,"x"] <- V(graph)$pos # set x position as "pos" variable
-      lay[which(lay[,"name"] == lastscale),"x"] <- lay[which(lay[,"name"] == lastscale),"x"] -1 # bump mental forward in layout
-
-      # Y COORD
-      depth <- max(V(graph)$pos)
-
-      for (i in 0:depth) { #this function generates a y-coordinate for each scale
-        #based off of its centrality in its positional (ant/post) subgraph
-        subnet <- induced_subgraph(graph, which(V(graph)$pos==i))
-        rowcent <- V(subnet)$side * (1/subgraph_centrality(subnet))
-        rowcent <- sort(rowcent)
-        # reassign rowcent values to whole #s
-        vec <- c(1:length(rowcent))
-
-        rowcent[1:length(rowcent)] <- vec - ceiling(length(vec)/2)
-        #center rows with even # of scales
-        if (length(rowcent) %% 2 == 0) {
-          rowcent <- rowcent - 0.5
-        }
-
-        V(graph)$lat[match(names(rowcent),V(graph)$name)] <- rowcent/(max(rowcent) + 1)
-      }
-      lay[,"y"] <- V(graph)$lat
-      lay[which(lay[,"name"] == lastscale),"y"] <- 0
-
-      graph$layout <- lay #assign the graph a layout property
-
-      if(verbose){cat("✓ converted")}
+      if(verbose){cat(" converted")}
 
       return(graph) #return the graph object
     }
@@ -87,24 +55,4 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE,
           which(mat != t(mat), arr.ind = TRUE),"\n")}
       }
   }
-}
-
-#set up a graph with everything needed to plot out a comprehensible lizard
-lizard_setup <- function(graph){
-  graph <- perimeter(graph)
-  V(graph)$str <- igraph::strength(graph) # access strength (sum of vertex weights) for each node
-  V(graph)$deg <- igraph::degree(graph)
-
-  #store general scale name (name stripped of any numbers, R/L indicators, underscores)
-  V(graph)$scaletype <- str_replace_all(names(V(graph)), "[0123456789_RL]","")
-
-
-  #ORDINATION
-  V(graph)$pos <- distances(graph, weights = NA)[,firstscale] #ordinate nodes (anterior (0) to posterior (+n))
-  # set siding info: -1 for left
-  V(graph)$side <- rep(0, length(V(graph)))
-  V(graph)$side[grep("L_",V(graph)$name)] <- -1
-  V(graph)$side[grep("R_",V(graph)$name)] <- 1
-
-  return(graph)
 }

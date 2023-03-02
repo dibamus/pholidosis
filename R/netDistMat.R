@@ -1,17 +1,26 @@
-#Generate distance matrix from graphs
-netDistMat <- function(graphs){
-  l <- length(graphs)
-  dmat <- array(data = NA, dim = c(l,l,3), 
-                dimnames = list(names(graphs),
-                                names(graphs),
-                                c("weight difference of shared edges","number of unshared edges","full distance")))
-  pairs <- combinations(l, 2) #get matrix of all possible pairs of numbers from 1-l
-  
+#' Generate distance matrix from gl
+#' @import utils
+#' @param gl A list of graphs.
+#' @return An n * n * 3 matrix, where n is the number of graphs in gl
+#' the first slice [,,1] contains the weight difference of shared edges
+#' the second slice [,,2] contains the number of edge-changes among shared scales
+#' the third slice [,,3] contains the number of un-shared scales
+#This function generates a distance matrix of distances between any two graphs in a list of graphs
+netDistMat <- function(gl){
+  l <- length(gl)
+  dmat <- array(data = NA, dim = c(l,l,3),
+                dimnames = list(names(gl),
+                                names(gl),
+                                c("weight difference of shared edges",
+                                  "number of edge changes among shared scales",
+                                  "difference in scale count")))
+  pairs <- t(combn(l, 2)) #get matrix of all possible pairs of numbers from 1-l
+
   for (i in 1:dim(pairs)[1]){ #for each row in pairs matrix
     # measure distance between those nodes
     # place distances in correct spot (lower triangle) of distance matrix
-    #right now this only keeps track of the first 3 distance measures
-    dmat[pairs[i,2],pairs[i,1],] <- pnet_distance(graphs[[pairs[i,1]]], graphs[[pairs[i,2]]])[1:3]
+    print(paste(names(gl)[pairs[i,2]],"vs",names(gl)[pairs[i,1]]))
+    dmat[pairs[i,2],pairs[i,1],] <- pnet_distance(gl[[pairs[i,1]]], gl[[pairs[i,2]]])[1:3]
   }
   dmat
 }
