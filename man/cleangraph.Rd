@@ -11,7 +11,7 @@ cleangraph(g)
 \item{g}{An igraph object.}
 }
 \value{
-An igraph object, constructed from the edgelist of g.
+An igraph object, constructed from the edgelist of g
 }
 \description{
 Clean a graph

@@ -7,6 +7,7 @@
 #' @return An integer vector of length n, one entry per row (edge) og g1.E.
 #'  The entry for each index is equal to the index of the row in g2.E where
 #'  the equivalent edge is found.
+#' @export
 cgraph <- function(g1.E,g2.E){ # are the edges of g1 in g2?
   x <- c(1:dim(g1.E)[1])
   sapply(x, FUN = function(x){
