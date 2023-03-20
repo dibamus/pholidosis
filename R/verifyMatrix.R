@@ -4,6 +4,7 @@
 #' @param verbose A logical scalar. If TRUE, it prints progress & errors.
 #' @return A data frame, either the original (df), the original data frame modified
 #'    to work with other pholidosis functions, or a dummy data frame "bad.input.matrix" =1
+#' @export
 
 verifyMatrix <- function(df, verbose = TRUE){
   if(!has_rownames(df)){

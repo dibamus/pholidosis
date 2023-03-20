@@ -15,6 +15,7 @@
 #'   topo - the distance measures and data frames built by graphEditDist
 #'   measure - the named vector described above.
 #'
+#' @export
 pnet_distance <- function(g1,g2, truncate = TRUE){
   ed <- graphEditDist(g1,g2)
   g1.E <- data.frame(as_edgelist(g1),weight = E(g1)$weight, indep.weight = (E(g1)$weight -1)/2)

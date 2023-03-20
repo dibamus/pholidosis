@@ -9,6 +9,7 @@
 #'        node - the number of un-shared vertices between g1 and g2
 #'        swap - the number of "edge swaps" between g1 and g2
 #'        edge - the number of non-"edge swap" unshared edges between g1 and g2
+#' @export
 graphEditDist <- function(g1,g2){
 
   ##### 1 - Generate Edgelists ####

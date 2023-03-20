@@ -5,7 +5,7 @@
 #' A n*e matrix, where n is the number of graphs in gl,
 #' and e is the total number of unique edges in gl.
 #' An element, [n1,e1] is the weight of edge e1 in graph n1.
-#'
+#' @export
 
 morphoMatrix <- function(gl){
   #first, make a matrix of all unique edges in the dataset

@@ -4,6 +4,7 @@
 #' @param edge A character vector of length 2: an edge in a network.
 #' @param g1.E An n * 2 character matrix: the edgelist for the network.
 #' @return A character vector of all the vertices that both vertices of edge connect to
+#' @export
 
 sharedneighbors <- function(edge,g1.E){
   #edge must be in the form c(v1,v2)

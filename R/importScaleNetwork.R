@@ -5,6 +5,7 @@
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
 #' @return An igraph object, the scale network.
+#' @export
 
 scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE){
   mat <-as.matrix(df) # read in adjacency matrix file

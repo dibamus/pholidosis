@@ -10,6 +10,7 @@
 #'        any ordination or enumeration
 #'    pos - distance from the firstscale
 #'    side - 0 for scales on the midline; 1 for Right side; -1 for left side
+#' @export
 lizard_setup <- function(graph, firstscale = 'rostral'){
 
   V(graph)$str <- igraph::strength(graph) # access strength (sum of vertex weights) for each node

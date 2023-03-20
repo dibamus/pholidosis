@@ -5,6 +5,7 @@
 #' @param edgelist A n * 2 character matrix, an edgelist for a graph.
 #' @return a scalar, either the index of the row of edge in edgelist, or NA if
 #'    the edge cannot be found in the edgelist
+#' @export
 findedge <- function(edge,edgelist){ #does an edge exist in an edgelist?
   edge <- unlist(edge)
 
