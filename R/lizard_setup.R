@@ -15,6 +15,8 @@ lizard_setup <- function(graph, firstscale = 'rostral'){
 
   V(graph)$str <- igraph::strength(graph) # access strength (sum of vertex weights) for each node
   V(graph)$deg <- igraph::degree(graph)
+  
+  E(graph)$weight <- sapply(E(graph$weight), FUN = function(x){(x + 1)/2})
 
   #store general scale name (name stripped of any numbers, R/L indicators, underscores)
   V(graph)$scaletype <- str_replace_all(names(V(graph)), "[0123456789_RL]","")
