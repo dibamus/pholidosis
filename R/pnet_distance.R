@@ -34,10 +34,7 @@ pnet_distance <- function(g1,g2, truncate = TRUE){
                         function(x){
                           E(g2)$weight[findedge(x, g2.E[,1:2])]
                         })
-  # make column of weight differences of shared edges 
-  # this is now accounted for in lizard_setup.R
-  # a change of weight = 1 to weight = 3 (unfused to fully fused) counts as 1 change
-  # a change of weight = 1 to weight = 2 (unfused to semi-fused) counts as .5 change
+
   g.U$wDiff <- (g.U$weight - g.U$g2weight) # this is now accounted for in lizard_setup.R
 
   distances <- c(w = sum(abs(g.U$wDiff)) + sum(abs(g1.E$indep.weight)) + sum(abs(g2.E$indep.weight)),
