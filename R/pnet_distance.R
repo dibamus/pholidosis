@@ -18,8 +18,8 @@
 #' @export
 pnet_distance <- function(g1,g2, truncate = TRUE){
   ed <- graphEditDist(g1,g2)
-  g1.E <- data.frame(as_edgelist(g1),weight = E(g1)$weight, indep.weight = (E(g1)$weight -1)/2)
-  g2.E <- data.frame(as_edgelist(g2),weight = E(g2)$weight, indep.weight = (E(g2)$weight -1)/2)
+  g1.E <- data.frame(as_edgelist(g1),weight = E(g1)$weight, indep.weight = (E(g1)$weight -1))
+  g2.E <- data.frame(as_edgelist(g2),weight = E(g2)$weight, indep.weight = (E(g2)$weight -1))
 
   g1.E$match <- !is.na(cgraph(g1.E[,1:2],g2.E[,1:2]))
   g2.E$match <- !is.na(cgraph(g2.E[,1:2],g1.E[,1:2]))
@@ -38,12 +38,12 @@ pnet_distance <- function(g1,g2, truncate = TRUE){
   # this is now accounted for in lizard_setup.R
   # a change of weight = 1 to weight = 3 (unfused to fully fused) counts as 1 change
   # a change of weight = 1 to weight = 2 (unfused to semi-fused) counts as .5 change
-  # g.U$wDiff <- (g.U$weight - g.U$g2weight)/2 # this is now accounted for in lizard_setup.R
+  g.U$wDiff <- (g.U$weight - g.U$g2weight) # this is now accounted for in lizard_setup.R
 
-  distances <- c(w = sum(g.U$wDiff) + sum(g1.E$indep.weight) + sum(g2.E$indep.weight),
+  distances <- c(w = sum(abs(g.U$wDiff)) + sum(abs(g1.E$indep.weight)) + sum(abs(g2.E$indep.weight)),
                  e = ed$distances$swap + ed$distances$edge,
                  f = ed$distances$node)
-  names(distances) <- c("weight difference of shared edges",
+  names(distances) <- c("weight difference",
                         "number of edge changes among shared scales",
                         "difference in scale count")
   if(truncate){
