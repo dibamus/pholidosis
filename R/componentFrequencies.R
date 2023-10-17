@@ -3,7 +3,7 @@
 #' @param charMat A character matrix created by the "morphoMatrix" function
 #' @importFrom igraph as_edgelist
 #' @importFrom stringr str_split
-#' @return a list of two lists: "EdgeConsistency," the proportion of species in
+#' @return A list of two lists: "EdgeConsistency," the proportion of species in
 #' which each edge is present, and ScaleConsistency," the proportion of species
 #' in which each vertex (scale) is present.
 #' @export
