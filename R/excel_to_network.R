@@ -3,6 +3,11 @@
 #' @param filename A character vector specifying the file path of the excel file.
 #' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
 #' @return A list of igraph objects, one for each sheet in the file.
+#' @examples
+#'
+#' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+#' Dib <- excel_to_network(filepath)
+#' plot(Dib$Anelytropsis_papillosus) check it out, it's Anelytropsis papillosus
 #' @export
 
 #IMPORT FROM EXCEL

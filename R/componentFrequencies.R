@@ -6,6 +6,13 @@
 #' @return A list of two lists: "EdgeConsistency," the proportion of species in
 #' which each edge is present, and ScaleConsistency," the proportion of species
 #' in which each vertex (scale) is present.
+#'
+#' @examples
+#' data("simpleGs)
+#' mat <- morphoMatrix(simpleGs)
+#' freq <- componentFrequencies(mat)
+#' freq
+#'
 #' @export
 
 componentFrequencies <- function(charMat){

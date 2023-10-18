@@ -25,3 +25,19 @@ An igraph object with the following vertex attributes:
 \description{
 Set up a graph with everything needed to plot out a comprehensible lizard.
 }
+\examples{
+library(readxl)
+filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+anelytropsis.adj <- read_excel(filepath, sheet = 1)
+
+# verify that all column and row names have matches
+anelytropsis.adj <- verifyMatrix(anelytropsis.adj) # they do,
+# and now there are row names
+
+anelytropsis.net <- scaleNetwork(anelytropsis.adj, lizard = FALSE)
+vertex_attr(anelytropsis.net) #vertices only have a name attribute
+
+anelytropsis.net <- lizard_setup(anelytropsis.net) #now each vertex has name
+# strength, degree, scaletype, position, and side attributes!
+
+}

@@ -2,7 +2,7 @@
 
 export(cgraph)
 export(clean_isolates)
-export(cleangraph)
+export(componentFrequencies)
 export(excel_to_network)
 export(findedge)
 export(graphEditDist)
@@ -24,3 +24,4 @@ import(tidyverse)
 import(utils)
 importFrom(igraph,as_edgelist)
 importFrom(igraph,graph_from_edgelist)
+importFrom(stringr,str_split)

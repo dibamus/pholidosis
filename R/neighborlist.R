@@ -4,6 +4,15 @@
 #' @param v1 A character vector, a named vertex in a network
 #' @param g An n * 2 character matrix: the edgelist for the network.
 #' @return A character vector naming all the vertices neighboring v1.
+#'
+#' @examples
+#' data('simpleGs')
+#'
+#' g <- as_edgelist(simpleGs$g4)
+#'
+#' neighborlist("D", g) ## the vertex "D" is connected to the vertices "C"
+#' ## and "A"
+#'
 #' @export
 
 neighborlist <- function(v1,g){

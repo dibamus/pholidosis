@@ -5,6 +5,13 @@
 #' the first slice [,,1] contains the weight difference of shared edges
 #' the second slice [,,2] contains the number of edge-changes among shared scales
 #' the third slice [,,3] contains the number of un-shared scales
+#'
+#' @examples
+#' data('simpleGs')
+#'
+#' dmat <- netDistMat(simpleGs)
+#'
+#' dmat ##view the difference matrices
 #' @export
 #This function generates a distance matrix of distances between any two graphs in a list of graphs
 netDistMat <- function(gl){

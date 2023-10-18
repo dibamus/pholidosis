@@ -10,11 +10,18 @@ netDistMat(gl)
 \item{gl}{A list of graphs.}
 }
 \value{
-An n * n * 3 matrix, where n is the number of graphs in gl
+An n x n x 3 matrix, where n is the number of graphs in gl
 the first slice [,,1] contains the weight difference of shared edges
 the second slice [,,2] contains the number of edge-changes among shared scales
 the third slice [,,3] contains the number of un-shared scales
 }
 \description{
 Generate distance matrix from gl
+}
+\examples{
+data('simpleGs')
+
+dmat <- netDistMat(simpleGs)
+
+dmat ##view the difference matrices
 }

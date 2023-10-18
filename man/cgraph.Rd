@@ -2,7 +2,7 @@
 % Please edit documentation in R/cgraph.R
 \name{cgraph}
 \alias{cgraph}
-\title{Check for similarities between graphs}
+\title{cgraph - compare graphs}
 \usage{
 cgraph(g1.E, g2.E)
 }
@@ -17,5 +17,8 @@ An integer vector of length n, one entry per row (edge) og g1.E.
  the equivalent edge is found.
 }
 \description{
+Check for similarities between graphs
+}
+\details{
 Which of the edges of g1 can be found in g2, and to which edges do they correspond?
 }

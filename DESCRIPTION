@@ -4,7 +4,9 @@ Title: Scale Network Import and Analysis
 Version: 0.1.0
 Author: Isaac Krone
 Maintainer: Isaac Krone <isaacwkrone@gmail.com>
-Depends: igraph 
+Depends: 
+    igraph,
+    R (>= 2.10)
 Imports: tidyverse, stringr, dplyr, readxl, tibble
 Description: pholidosis works with planar biological networks with a known homology structure.
     It is built for analysis of squamate scalation networks.

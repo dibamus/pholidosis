@@ -1,4 +1,9 @@
+#' graphEditDist
+#'
 #' Graph edit distance for planar networks with mostly homologous vertices.
+#'
+#' This function takes two graphs and measures edit distance between them,
+#' returning
 #' @import igraph stringr tidyverse
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
@@ -9,6 +14,12 @@
 #'        node - the number of un-shared vertices between g1 and g2
 #'        swap - the number of "edge swaps" between g1 and g2
 #'        edge - the number of non-"edge swap" unshared edges between g1 and g2
+#'
+#' @examples
+#' data("simpleGs)
+#' dist <- graphEditDist(simpleGs$g1,simplegs$g2)
+#' dist
+#'
 #' @export
 graphEditDist <- function(g1,g2){
 
