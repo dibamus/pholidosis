@@ -4,17 +4,52 @@
 \alias{verifyMatrix}
 \title{Find problems in a scale table}
 \usage{
-verifyMatrix(df, verbose = TRUE)
+verifyMatrix(df, verbose = TRUE, edgecodes = 1:3)
 }
 \arguments{
 \item{df}{A data frame, the scale table.}
 
 \item{verbose}{A logical scalar. If TRUE, it prints progress & errors.}
+
+\item{edgecodes}{A character/integer vector of codes used to denote different
+edge properties in an adjacency matrix. Defaluts to c(1,2,3), corresponding
+to completely separated, partially fused, and completely fused vertices
+(see Krone 2024)}
 }
 \value{
 A data frame, either the original (df), the original data frame modified
-   to work with other pholidosis functions, or a dummy data frame "bad.input.matrix" =1
+   to work with other pholidosis functions, or a dummy data frame
+   "bad.input.matrix" = 1
 }
 \description{
 Find problems in a scale table
+}
+\examples{
+library(readxl)
+filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+anelytropsis.adj <- read_excel(filepath, sheet = 1)
+
+# verify that all column and row names have matches
+anelytropsis.adj <- verifyMatrix(anelytropsis.adj) #they do!
+
+# What about bad files?
+badmatrix <- system.file("extdata", "bad_matrix.xlsx", package = "pholidosis")
+badmat.adj <- read_excel(badmatrix, sheet = 1)
+
+# verify that all column and row names have matches
+badmat <- verifyMatrix(badmat.adj) #looks like some problems
+# column 2 is called "frontonasag" but it seems like it should be "frontonasal"
+# to match row 2
+
+# that's ok, I fixed it in the second sheet of this excel workbook...
+# let's load up sheet 2
+badmat2 <- verifyMatrix(read_excel(badmatrix, sheet = 2)) #whoops
+# in row 7, column 20, there's a non-numeric entry.
+# once that's cleaned up, you should be able to import this file.
+
+# there's a cleared-up version in the third sheet of this excel workbook
+
+badmat3 <- verifyMatrix(read_excel(badmatrix, sheet = 3)) #seems good
+
+badmat3 #looks like it worked!
 }

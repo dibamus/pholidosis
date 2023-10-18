@@ -2,7 +2,7 @@
 % Please edit documentation in R/graphEditDist.R
 \name{graphEditDist}
 \alias{graphEditDist}
-\title{Graph edit distance for planar networks with mostly homologous vertices.}
+\title{graphEditDist}
 \usage{
 graphEditDist(g1, g2)
 }
@@ -22,4 +22,8 @@ A list containing
 }
 \description{
 Graph edit distance for planar networks with mostly homologous vertices.
+}
+\details{
+This function takes two graphs and measures edit distance between them,
+returning
 }

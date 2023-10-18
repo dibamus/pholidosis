@@ -1,13 +1,30 @@
+#' scaleNetwork
+#'
 #' This loads a dataframe (df) of scale relationships as an igraph object
+#'
+#' See excel_to_network for importing networks from excel sheets, lizard_setup
+#' for handling the assignment of vertex attributes, and verifyMatrix for
+#' a system handling the individual problems with improperly formatted dataframes
+#' or dataframes with bad (non-numeric) entries
+#'
 #' @import igraph stringr tidyverse
 #' @param df A data frame, the scale table.
 #' @param checkAsymmetry A logical scalar, if TRUE, the function checks whether
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
+#' @param lizard A logical scalar. If TRUE, vertex properties are assigned via
+#' the "lizard_setup" function
 #' @return An igraph object, the scale network.
+#'
+#' @examples
+#' library(readxl)
+#' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+#' anelytropsis.adj <- read_xlsx(filepath, sheet = 1, col_names = TRUE)
+#' anelytropsis.net <- scaleNetwork(anelytropsis.adj)
+#'
 #' @export
 
-scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE){
+scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, lizard = TRUE){
   mat <-as.matrix(df) # read in adjacency matrix file
   mat[is.na(mat)] <- 0 # set all NA links to 0
 
@@ -42,8 +59,11 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE){
       graph <- graph_from_adjacency_matrix(weighted = T, adjmatrix = mat, mode = "undirected")
       graph <- clean_isolates(graph) #get rid of any isolated vertices
 
+      #give scales appropriate ordination and name properties
+      if(lizard){
+        graph <- lizard_setup(graph)
+        }
 
-      graph <- lizard_setup(graph)
 
       if(verbose){cat(" converted")}
 

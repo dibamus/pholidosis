@@ -17,3 +17,12 @@ A character vector naming all the vertices neighboring v1.
 \description{
 get a list of all vertices which v1 neighbors
 }
+\examples{
+data('simpleGs')
+
+g <- as_edgelist(simpleGs$g4)
+
+neighborlist("D", g) ## the vertex "D" is connected to the vertices "C"
+## and "A"
+
+}

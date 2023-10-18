@@ -5,6 +5,13 @@
 #' @param edgelist A n * 2 character matrix, an edgelist for a graph.
 #' @return a scalar, either the index of the row of edge in edgelist, or NA if
 #'    the edge cannot be found in the edgelist
+#'@examples
+#' data("simpleGs)
+#' findedge(c('B','D'),as_edgelist(simpleGs$g1)) ##neither the edge "B-D" nor
+#' ## the edge "D-B" is present in g1
+#' findedge(c('B','D'),as_edgelist(simpleGs$g2) # the edge "B-D" (or the edge
+#' ## "D-B") is the 5th edge in g1
+#'
 #' @export
 findedge <- function(edge,edgelist){ #does an edge exist in an edgelist?
   edge <- unlist(edge)

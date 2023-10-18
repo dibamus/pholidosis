@@ -2,7 +2,7 @@
 % Please edit documentation in R/clean_isolates.R
 \name{clean_isolates}
 \alias{clean_isolates}
-\title{Get just the largest fully-connected subgraph of a graph}
+\title{clean_isolates}
 \usage{
 clean_isolates(g)
 }
@@ -14,4 +14,19 @@ An igraph object containing only the largest fully-connected subgraph of g
 }
 \description{
 Get just the largest fully-connected subgraph of a graph
+}
+\details{
+this ensures a graph added to your dataset is fully connected (there is a
+path from every vertex to every other vertex in the graph). It is helpful to
+use this when importing graphs from adjacency matrix spreadsheets where there
+may be unused columns and rows which create isolated vertices
+}
+\examples{
+g <- graph_from_edgelist(matrix(c("B","C","C","D","D","A","B","D","E","E"), ncol = 2, byrow = TRUE))
+
+plot(g) ## notice that E is isolated
+
+g <- clean_isolates(g)
+
+plot(g) ## the isolated vertex has been removed
 }
