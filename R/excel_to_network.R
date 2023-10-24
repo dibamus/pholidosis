@@ -5,7 +5,7 @@
 #' Calls verifyMatrix to troubleshoot and creates igraph objects using
 #' scaleNetwork.
 #'
-#' @import tidyverse readxl
+#' @import tidyverse
 #' @importFrom readxl excel_sheets read_excel
 #' @param filename A character vector specifying the file path of the excel file.
 #' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
