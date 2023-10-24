@@ -7,7 +7,7 @@
 #' use this when importing graphs from adjacency matrix spreadsheets where there
 #' may be unused columns and rows which create isolated vertices
 #'
-#' @import igraph
+#' @importFrom igraph components subgraph
 #' @param g An igraph object.
 #' @return An igraph object containing only the largest fully-connected subgraph of g
 #'

@@ -1,5 +1,12 @@
-#' Measures the full graph edit distance  between two graphs
-#' @import igraph
+#' pnet_distance
+#'
+#' Measures the full graph edit distance between two graphs.
+#'
+#' This function calls graphEditDistance to get topology changes and also
+#' compares edge weights, presenting the total number of different nodes,
+#' different edges, and different edge weights.
+#'
+#' @importFrom igraph V E
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
 #' @param truncate A logical scalar. If TRUE (default), the function returns only
@@ -14,7 +21,10 @@
 #'   a list containing:
 #'   topo - the distance measures and data frames built by graphEditDist
 #'   measure - the named vector described above.
-#'
+#' @examples
+#' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+#' Dib <- excel_to_network(filepath)
+#' dist <- pnet_distance(Dib$Anelytropsis_papillosus,Dib$D_alfredi)
 #' @export
 pnet_distance <- function(g1,g2, truncate = TRUE){
   ed <- graphEditDist(g1,g2)

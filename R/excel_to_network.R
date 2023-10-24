@@ -1,5 +1,12 @@
-#' Import a scale network or many scale networks from an excel file
-#' @import igraph tidyverse readxl stats
+#' excel_to_network
+#'
+#' Import a scale network or many scale networks from an excel file.
+#'
+#' Calls verifyMatrix to troubleshoot and creates igraph objects using
+#' scaleNetwork.
+#'
+#' @import tidyverse readxl
+#' @importFrom readxl excel_sheets read_excel
 #' @param filename A character vector specifying the file path of the excel file.
 #' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
 #' @return A list of igraph objects, one for each sheet in the file.
@@ -7,7 +14,7 @@
 #'
 #' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
 #' Dib <- excel_to_network(filepath)
-#' plot(Dib$Anelytropsis_papillosus) check it out, it's Anelytropsis papillosus
+#' plot(Dib$Anelytropsis_papillosus) #check it out, it's Anelytropsis papillosus
 #' @export
 
 #IMPORT FROM EXCEL

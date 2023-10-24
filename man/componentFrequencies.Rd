@@ -2,8 +2,7 @@
 % Please edit documentation in R/componentFrequencies.R
 \name{componentFrequencies}
 \alias{componentFrequencies}
-\title{Vertex and Edge Consistency
-How often does each edge and each vertex (scale) appear in a dataset?}
+\title{componentFrequencies}
 \usage{
 componentFrequencies(charMat)
 }
@@ -17,5 +16,14 @@ in which each vertex (scale) is present.
 }
 \description{
 Vertex and Edge Consistency
+}
+\details{
 How often does each edge and each vertex (scale) appear in a dataset?
+}
+\examples{
+data("simpleGs")
+mat <- morphoMatrix(simpleGs)
+freq <- componentFrequencies(mat)
+freq
+
 }

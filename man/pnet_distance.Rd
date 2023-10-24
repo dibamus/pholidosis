@@ -2,7 +2,7 @@
 % Please edit documentation in R/pnet_distance.R
 \name{pnet_distance}
 \alias{pnet_distance}
-\title{Measures the full graph edit distance  between two graphs}
+\title{pnet_distance}
 \usage{
 pnet_distance(g1, g2, truncate = TRUE)
 }
@@ -27,5 +27,15 @@ Either a named vector of length 3, containing:
   measure - the named vector described above.
 }
 \description{
-Measures the full graph edit distance  between two graphs
+Measures the full graph edit distance between two graphs.
+}
+\details{
+This function calls graphEditDistance to get topology changes and also
+compares edge weights, presenting the total number of different nodes,
+different edges, and different edge weights.
+}
+\examples{
+filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+Dib <- excel_to_network(filepath)
+dist <- pnet_distance(Dib$Anelytropsis_papillosus,Dib$D_alfredi)
 }

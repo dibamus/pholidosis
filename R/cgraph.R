@@ -11,7 +11,7 @@
 #'  the equivalent edge is found.
 #'
 #' @examples
-#' data('simpleGs)
+#' data("simpleGs")
 #' g1 <- as_edgelist(simpleGs$g1)
 #' g2 <- as_edgelist(simpleGs$g2)
 #'

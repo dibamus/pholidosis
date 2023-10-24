@@ -1,5 +1,12 @@
-#' Find problems in a scale table
-#' @import tidyverse tibble
+#' verifyMatrix
+#'
+#' Find problems in an input adjacency matrix.
+#'
+#' Helpful when importing a matrix from an excel sheet that maybe you didn't
+#' check every cell on.
+#'
+#' @import tidyverse
+#' @importFrom tibble has_rownames column_to_rownames
 #' @param df A data frame, the scale table.
 #' @param verbose A logical scalar. If TRUE, it prints progress & errors.
 #' @param edgecodes A character/integer vector of codes used to denote different
@@ -41,7 +48,8 @@
 
 verifyMatrix <- function(df, verbose = TRUE, edgecodes = 1:3){
   if(!has_rownames(df)){
-    df <- df %>% column_to_rownames("scale name")
+    col1 <- colnames(df)[1]
+    df <- df %>% column_to_rownames(col1)
   }
 
   #delete extra, erroneous columns
@@ -97,4 +105,3 @@ verifyMatrix <- function(df, verbose = TRUE, edgecodes = 1:3){
   return(df)
 
 }
-

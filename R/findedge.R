@@ -6,7 +6,7 @@
 #' @return a scalar, either the index of the row of edge in edgelist, or NA if
 #'    the edge cannot be found in the edgelist
 #'@examples
-#' data("simpleGs)
+#' data("simpleGs")
 #' findedge(c('B','D'),as_edgelist(simpleGs$g1)) ##neither the edge "B-D" nor
 #' ## the edge "D-B" is present in g1
 #' findedge(c('B','D'),as_edgelist(simpleGs$g2) # the edge "B-D" (or the edge

@@ -2,7 +2,7 @@
 % Please edit documentation in R/verifyMatrix.R
 \name{verifyMatrix}
 \alias{verifyMatrix}
-\title{Find problems in a scale table}
+\title{verifyMatrix}
 \usage{
 verifyMatrix(df, verbose = TRUE, edgecodes = 1:3)
 }
@@ -22,7 +22,11 @@ A data frame, either the original (df), the original data frame modified
    "bad.input.matrix" = 1
 }
 \description{
-Find problems in a scale table
+Find problems in an input adjacency matrix.
+}
+\details{
+Helpful when importing a matrix from an excel sheet that maybe you didn't
+check every cell on.
 }
 \examples{
 library(readxl)

@@ -1,10 +1,13 @@
 #' graphEditDist
 #'
-#' Graph edit distance for planar networks with mostly homologous vertices.
+#' Graph edit distance, number of topological changes between two planar
+#' networks with mostly homologous vertices. This does not measure differences
+#' in vertex or edge attributes (i.e., edge weight differences).
 #'
 #' This function takes two graphs and measures edit distance between them,
 #' returning
-#' @import igraph stringr tidyverse
+#' @import stringr tidyverse
+#' @importFrom igraph V E graph_from_edgelist as_edgelist shortest_paths
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
 #' @return A list containing
@@ -16,7 +19,7 @@
 #'        edge - the number of non-"edge swap" unshared edges between g1 and g2
 #'
 #' @examples
-#' data("simpleGs)
+#' data("simpleGs")
 #' dist <- graphEditDist(simpleGs$g1,simplegs$g2)
 #' dist
 #'
@@ -120,14 +123,26 @@ graphEditDist <- function(g1,g2){
       g<- graph_from_edgelist(as.matrix(el),directed = FALSE)
 
       #find the shortest path between the vertices of e in g
-      sp <- shortest_paths(graph = g,
+      sp <- suppressWarnings({ #the shortest_paths function will likely find
+        # cases where there is no connection between the two vertices. This is
+        # a feature, (we want to know if there is no path), so I elect to
+        # suppress the following warning message, which tells the user when no
+        # path can be found:
+        # "In shortest_paths(graph = g,
+        # from = which(V(g)$name == as.character(e[1])),  :
+        # At core/paths/unweighted.c:368 : Couldn't reach some vertices."
+
+        shortest_paths(graph = g,
                            from = which(V(g)$name == as.character(e[1])),
                            to = which(V(g)$name == as.character(e[2])),
                            output = "vpath")$vpath[[1]]
+      })
       #if shortest_paths can't find a connection, sp is character(0)
+      #
       #if sp has a length greater than 4, the original edge is not part of any triangles
       # - since it is not part of a triangle, it can't be involved in any tight
       #   substitution groups
+
       if (length(sp)==0 | length(sp)>4){
         sp <- T
       }

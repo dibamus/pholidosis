@@ -21,9 +21,17 @@ A list containing
        edge - the number of non-"edge swap" unshared edges between g1 and g2
 }
 \description{
-Graph edit distance for planar networks with mostly homologous vertices.
+Graph edit distance, number of topological changes between two planar
+networks with mostly homologous vertices. This does not measure differences
+in vertex or edge attributes (i.e., edge weight differences).
 }
 \details{
 This function takes two graphs and measures edit distance between them,
 returning
+}
+\examples{
+data("simpleGs")
+dist <- graphEditDist(simpleGs$g1,simplegs$g2)
+dist
+
 }

@@ -22,3 +22,15 @@ Check for similarities between graphs
 \details{
 Which of the edges of g1 can be found in g2, and to which edges do they correspond?
 }
+\examples{
+data("simpleGs")
+g1 <- as_edgelist(simpleGs$g1)
+g2 <- as_edgelist(simpleGs$g2)
+
+comp <- cgraph(g1,g2)
+
+comp ## edge 1 of g1 corresponds to edge 1 of g2,
+## edge 2 of g1 corresponds to edge 2 of g2, etc,
+## edge 5 of g1 does not have a corresponding edge in g2
+
+}
