@@ -2,7 +2,7 @@
 % Please edit documentation in R/excel_to_network.R
 \name{excel_to_network}
 \alias{excel_to_network}
-\title{Import a scale network or many scale networks from an excel file}
+\title{excel_to_network}
 \usage{
 excel_to_network(filename, verbose = FALSE)
 }
@@ -15,5 +15,15 @@ excel_to_network(filename, verbose = FALSE)
 A list of igraph objects, one for each sheet in the file.
 }
 \description{
-Import a scale network or many scale networks from an excel file
+Import a scale network or many scale networks from an excel file.
+}
+\details{
+Calls verifyMatrix to troubleshoot and creates igraph objects using
+scaleNetwork.
+}
+\examples{
+
+filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+Dib <- excel_to_network(filepath)
+plot(Dib$Anelytropsis_papillosus) #check it out, it's Anelytropsis papillosus
 }

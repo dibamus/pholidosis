@@ -5,7 +5,12 @@
 #' See excel_to_network for importing networks from excel sheets, lizard_setup
 #' for handling the assignment of vertex attributes, and verifyMatrix for
 #' a system handling the individual problems with improperly formatted dataframes
-#' or dataframes with bad (non-numeric) entries
+#' or dataframes with bad (non-numeric) entries.
+#'
+#' If you use the 1-2-3 unfused-partially fused-fused numeric scale in your
+#' matrix, lizard_setup will change your edge weights to 1-1.5-2 to make scale
+#' subtractions and scale fusions numerically equivalent for graphEditDistance
+#' measurement.
 #'
 #' @import igraph stringr tidyverse
 #' @param df A data frame, the scale table.
@@ -13,7 +18,7 @@
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
 #' @param lizard A logical scalar. If TRUE, vertex properties are assigned via
-#' the "lizard_setup" function
+#' the "lizardSetup" function
 #' @return An igraph object, the scale network.
 #'
 #' @examples

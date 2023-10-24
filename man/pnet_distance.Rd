@@ -29,3 +29,8 @@ Either a named vector of length 3, containing:
 \description{
 Measures the full graph edit distance  between two graphs
 }
+\examples{
+filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+Dib <- excel_to_network(filepath)
+dist <- pnet_distance(Dib$Anelytropsis_papillosus,Dib$D_alfredi)
+}

@@ -1,5 +1,9 @@
+#' componentFrequencies
+#'
 #' Vertex and Edge Consistency
+#'
 #' How often does each edge and each vertex (scale) appear in a dataset?
+#'
 #' @param charMat A character matrix created by the "morphoMatrix" function
 #' @importFrom igraph as_edgelist
 #' @importFrom stringr str_split
@@ -8,7 +12,7 @@
 #' in which each vertex (scale) is present.
 #'
 #' @examples
-#' data("simpleGs)
+#' data("simpleGs")
 #' mat <- morphoMatrix(simpleGs)
 #' freq <- componentFrequencies(mat)
 #' freq

@@ -7,7 +7,7 @@
 #' An element, [n1,e1] is the weight of edge e1 in graph n1.
 #'
 #' @examples
-#' data("simpleGs)
+#' data("simpleGs")
 #' mat <- morphoMatrix(simpleGs)
 #' mat
 #'

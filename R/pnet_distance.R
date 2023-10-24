@@ -14,7 +14,10 @@
 #'   a list containing:
 #'   topo - the distance measures and data frames built by graphEditDist
 #'   measure - the named vector described above.
-#'
+#' @examples
+#' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
+#' Dib <- excel_to_network(filepath)
+#' dist <- pnet_distance(Dib$Anelytropsis_papillosus,Dib$D_alfredi)
 #' @export
 pnet_distance <- function(g1,g2, truncate = TRUE){
   ed <- graphEditDist(g1,g2)
