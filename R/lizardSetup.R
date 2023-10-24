@@ -6,6 +6,7 @@
 #' so that the edge weights c(1,2,3) become c(1,1.5,2)
 #'
 #' @importFrom igraph V E strength degree
+#'
 #' @param graph An igraph object, the scale network to be set up.
 #' @param firstscale A character scalar, the name of a vertex in graph that should
 #'    be used for anterior-posterior ordination. Usually, the most anterior scale
