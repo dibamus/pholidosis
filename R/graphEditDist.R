@@ -77,7 +77,7 @@ graphEditDist <- function(g1,g2){
     # edges in the comparison graph?
     df$altpath <- NA
     df$altpath[!df$matched] <- spa(df[!df$matched,1:2],
-                                   cleangraph(difference(graph,comparisongraph)))
+                                   cleangraph(difference(comparisongraph, graph)))
 
     df$uniqueVs <- apply(df[,1:2], MARGIN = 1, function(x){any(x %in%uV$g1)})
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
@@ -89,6 +89,19 @@ graphEditDist <- function(g1,g2){
     df$unresolved <- !df$uniqueVs & #it does not contain unique vertices
       !df$altpath_allmissing & #there is no alternative path through only unique vertices
       !df$matched #it is not contained in the other graph
+
+    #$$$ NEW CODE BETWEEN $$$
+    #for those unresolved edges, check whether there is a path in the comparison
+    #graph (g2) that goes through only vertices unique to g2
+    #if there is, then the abesnce of those vertices in g2 can explain why this
+    #edge is unique to g1
+    #mark it resolved
+
+    df[df$unresolved,"unresolved"] <- !spa(df[df$unresolved,],
+                                           comparisongraph) %in% uV$g2
+
+    #$$$
+
     return(df)
   }
 
