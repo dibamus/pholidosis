@@ -37,17 +37,28 @@ graphEditDist <- function(g1,g2){
 
   # remove an edge (e) from a graph, and then find the new shortest path between
   # those 2 vertices
-  spa <- function(df,g){
+
+  spa <- function(df,g,uniqueV){
     if(dim(df)[1] ==0 | length(g) ==0){
       return(NA)
     }
 
     l <- list()
     for(i in 1:dim(df)[1]){
+      #here is where I should pare down g
+
       if(all(df[i,1:2] %in% V(g)$name)){
-        x <- shortest_paths(graph = g,
-                            from = which(V(g)$name == df[i,1]),
-                            to = which(V(g)$name == df[i,2]),
+        #make sure to trim shared vertices out of g if indicated
+        if(length(uniqueV)!=0){
+          g3 <- delete_vertices(g, v = which(!(V(g)$name %in% c(df[i,1:2],uniqueV))))
+        }
+        else{
+          g3 <- g
+        }
+        #and continue
+        x <- shortest_paths(graph = g3,
+                            from = which(V(g3)$name == df[i,1]),
+                            to = which(V(g3)$name == df[i,2]),
                             output = "vpath")$vpath[[1]]
         vs <- as_ids(x)
         nv <- vs[which(!(vs %in% df[i,1:2]))]
@@ -72,14 +83,15 @@ graphEditDist <- function(g1,g2){
 
     df <- data.frame(as_edgelist(graph))
     df$matched <- !is.na(cgraph(E$g1,E$g2))
+    df$uniqueVs <- apply(df[,1:2], MARGIN = 1, function(x){any(x %in%uV$g1)})
 
     #for unmatched edges: can you find a way between the nodes via the unmatched
     # edges in the comparison graph?
     df$altpath <- NA
-    df$altpath[!df$matched] <- spa(df[!df$matched,1:2],
-                                   cleangraph(difference(comparisongraph, graph)))
+    df$altpath[!df$matched & !df$uniqueVs] <- spa(df[(!df$matched & !df$uniqueVs),1:2],
+                                                  cleangraph(difference(comparisongraph, graph)),
+                                                  uV$g2)
 
-    df$uniqueVs <- apply(df[,1:2], MARGIN = 1, function(x){any(x %in%uV$g1)})
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
     df$topochange <- NA
     #which edges of the graph cannot be resolved thorugh adding or subtracting vertices
@@ -89,18 +101,6 @@ graphEditDist <- function(g1,g2){
     df$unresolved <- !df$uniqueVs & #it does not contain unique vertices
       !df$altpath_allmissing & #there is no alternative path through only unique vertices
       !df$matched #it is not contained in the other graph
-
-    #$$$ NEW CODE BETWEEN $$$
-    #for those unresolved edges, check whether there is a path in the comparison
-    #graph (g2) that goes through only vertices unique to g2
-    #if there is, then the abesnce of those vertices in g2 can explain why this
-    #edge is unique to g1
-    #mark it resolved
-
-    df[df$unresolved,"unresolved"] <- !spa(df[df$unresolved,],
-                                           comparisongraph) %in% uV$g2
-
-    #$$$
 
     return(df)
   }
@@ -146,9 +146,9 @@ graphEditDist <- function(g1,g2){
         # At core/paths/unweighted.c:368 : Couldn't reach some vertices."
 
         shortest_paths(graph = g,
-                           from = which(V(g)$name == as.character(e[1])),
-                           to = which(V(g)$name == as.character(e[2])),
-                           output = "vpath")$vpath[[1]]
+                       from = which(V(g)$name == as.character(e[1])),
+                       to = which(V(g)$name == as.character(e[2])),
+                       output = "vpath")$vpath[[1]]
       })
       #if shortest_paths can't find a connection, sp is character(0)
       #
@@ -177,10 +177,14 @@ graphEditDist <- function(g1,g2){
   if(length(problemPolys)!=0){
     # if an edge not in problemPolys can be replaced with a path in problempolys
     # (using spa), then it has a substitute in the other graph
-    g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],problemPolys)
+    g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],
+                                              problemPolys,
+                                              uniqueV = NULL)
     g1.df$unresolved[!is.na(g1.df$topochange)] <- FALSE
 
-    g2.df$topochange[g2.df$unresolved] <- spa(g2.df[g2.df$unresolved,],problemPolys)
+    g2.df$topochange[g2.df$unresolved] <- spa(g2.df[g2.df$unresolved,],
+                                              problemPolys,
+                                              uniqueV = NULL)
     g2.df$unresolved[!is.na(g2.df$topochange)] <- FALSE
   }
 
@@ -198,4 +202,3 @@ graphEditDist <- function(g1,g2){
   ))
 
 }
-
