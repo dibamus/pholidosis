@@ -180,11 +180,11 @@ graphEditDist <- function(g1,g2){
 
   unrs <- rbind(g1.df[which(g1.df$unresolved),],
                 g2.df[which(g2.df$unresolved),])
+
   if(!all(is.na(unrs))){combined <- combined[-cgraph(unrs[,1:2],
                                                      combined),]}
   if(!all(is.na(combined))){
     problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
-
     if(length(problemPolys)!=0){
       # if an edge not in problemPolys can be replaced with a path in problempolys
       # (using spa), then it has a substitute in the other graph
