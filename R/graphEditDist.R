@@ -173,7 +173,6 @@ graphEditDist <- function(g1,g2){
   # these should resolve to complete cycles (polygons) surrounding unresolved edges
 
   #Make a graph of all the problem areas minus the unresolved edges.
-
   combined <- rbind(
     problemareas$g1,
     problemareas$g2[is.na(
@@ -183,6 +182,7 @@ graphEditDist <- function(g1,g2){
                 g2.df[which(g2.df$unresolved),])
   combined <- combined[-cgraph(unrs[,1:2],
                                combined),]
+
 
   problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
 
