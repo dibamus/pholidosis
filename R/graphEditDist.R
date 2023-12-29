@@ -173,7 +173,6 @@ graphEditDist <- function(g1,g2){
   # these should resolve to complete cycles (polygons) surrounding unresolved edges
 
   #Make a graph of all the problem areas minus the unresolved edges.
-
   combined <- rbind(
     problemareas$g1,
     problemareas$g2[is.na(
@@ -181,23 +180,24 @@ graphEditDist <- function(g1,g2){
 
   unrs <- rbind(g1.df[which(g1.df$unresolved),],
                 g2.df[which(g2.df$unresolved),])
-  combined <- combined[-cgraph(unrs[,1:2],
-                               combined),]
+  if(!all(is.na(unrs))){combined <- combined[-cgraph(unrs[,1:2],
+                                                     combined),]}
+  if(!all(is.na(combined))){
+    problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
 
-  problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
+    if(length(problemPolys)!=0){
+      # if an edge not in problemPolys can be replaced with a path in problempolys
+      # (using spa), then it has a substitute in the other graph
+      g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],
+                                                problemPolys,
+                                                uniqueV = NULL)
+      g1.df$unresolved[!is.na(g1.df$topochange)] <- FALSE
 
-  if(length(problemPolys)!=0){
-    # if an edge not in problemPolys can be replaced with a path in problempolys
-    # (using spa), then it has a substitute in the other graph
-    g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],
-                                              problemPolys,
-                                              uniqueV = NULL)
-    g1.df$unresolved[!is.na(g1.df$topochange)] <- FALSE
-
-    g2.df$topochange[g2.df$unresolved] <- spa(g2.df[g2.df$unresolved,],
-                                              problemPolys,
-                                              uniqueV = NULL)
-    g2.df$unresolved[!is.na(g2.df$topochange)] <- FALSE
+      g2.df$topochange[g2.df$unresolved] <- spa(g2.df[g2.df$unresolved,],
+                                                problemPolys,
+                                                uniqueV = NULL)
+      g2.df$unresolved[!is.na(g2.df$topochange)] <- FALSE
+    }
   }
 
 
