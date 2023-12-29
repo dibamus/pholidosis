@@ -171,8 +171,20 @@ graphEditDist <- function(g1,g2){
 
   # which edges are shared in the "problemareas"
   # these should resolve to complete cycles (polygons) surrounding unresolved edges
-  problemPolys <- graph_from_edgelist(as.matrix(intersect(problemareas$g1,problemareas$g2)),
-                                      directed = F)
+
+  #Make a graph of all the problem areas minus the unresolved edges.
+
+  combined <- rbind(
+    problemareas$g1,
+    problemareas$g2[is.na(
+      cgraph(problemareas$g2,problemareas$g1)),])
+
+  unrs <- rbind(g1.df[which(g1.df$unresolved),],
+                g2.df[which(g2.df$unresolved),])
+  combined <- combined[-cgraph(unrs[,1:2],
+                               combined),]
+
+  problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
 
   if(length(problemPolys)!=0){
     # if an edge not in problemPolys can be replaced with a path in problempolys
