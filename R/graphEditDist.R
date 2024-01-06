@@ -173,21 +173,33 @@ graphEditDist <- function(g1,g2){
   # these should resolve to complete cycles (polygons) surrounding unresolved edges
 
   #Make a graph of all the problem areas minus the unresolved edges.
-  combined <- rbind(
-    problemareas$g1,
-    problemareas$g2[is.na(
-      cgraph(problemareas$g2,problemareas$g1)),])
 
+  #combine problem areas into a single edgelist (the perimeter)
+  allprob <- rbind(
+    problemareas$g1,
+    problemareas$g2)
+
+  #find which edges are unresolved so they can be excluded from the perimeter
   unrs <- rbind(g1.df[which(g1.df$unresolved),],
                 g2.df[which(g2.df$unresolved),])
+  unrs$graph <- c(rep("g1", times = length(which(g1.df$unresolved))),
+                  rep("g2", times = length(which(g2.df$unresolved)))
+                  )
+  combined <- NA
 
-  if(!all(is.na(unrs))){combined <- combined[-cgraph(unrs[,1:2],
-                                                     combined),]}
+  if(!all(is.na(unrs))){ #remove those unwanted edges from the edgelist
+    combined <- allprob[is.na(cgraph(allprob, unrs[,1:2])),]
+  }
+  problemPolys <- NULL
+
   if(!all(is.na(combined))){
-    problemPolys <- graph_from_edgelist(as.matrix(combined), directed = F)
+    #make this edgelist into a graph
+    #delete any duplicated edges using "simplify()"
+    problemPolys <- simplify(graph_from_edgelist(as.matrix(combined), directed = F))
     if(length(problemPolys)!=0){
       # if an edge not in problemPolys can be replaced with a path in problempolys
       # (using spa), then it has a substitute in the other graph
+      # not necessarily due to an edge swap, it can be due to simply adding an edge
       g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],
                                                 problemPolys,
                                                 uniqueV = NULL)
@@ -200,12 +212,102 @@ graphEditDist <- function(g1,g2){
     }
   }
 
+  #Initialize a list of topo changes
+  tc <- list(swaps = 0, other = 0)
 
+  if(!is.null(problemPolys)){
+    sharedcycles <- findCycles(problemPolys) # find cycles in problempolys
+
+    if(length(sharedcycles)==0){
+      tc$other = dim(unrs)[1] # if no cycles, no swaps, so all the topo changes are "other"
+    }
+
+    #NOTE: I am not providing a full implementation of this now, just an estimator
+    # the code below estimates which edges are toposwaps -
+    #it is not a complete solution but should work for most cases now
+    else{
+
+      rmCy <- sapply(sharedcycles, function(x){ # find cycles that do not contain other cycles
+        sum(sapply(sharedcycles, function(y){all(y %in% x)}))
+      }) <= 2 # every cycle should only contain all the elements of itself
+      sharedcycles <- sharedcycles[rmCy]
+
+      unrs$cycles <- NA
+      unrs$potswap <- NA
+
+      for(i in 1:dim(unrs)[1]){
+        e <- unrs[i,1:2]
+        incy <- sapply(sharedcycles, function(x){all(e %in% names(x))})
+        unrs$cycles[i] <- list(incy)
+      }
+      #matrix - rows are the edges in question, columns are the cycles
+
+      #NOTE: this does not account for edges that may be a part of more than one cycle,
+      # but for now it should be fine
+
+      cyclematrix <- matrix(unlist(unrs$cycles), nrow = dim(unrs)[1], byrow = TRUE)
+      for( k in 1:dim(unrs)[1]){
+        if(unrs$graph[k] == "g1"){gind =1}
+        else(gind = -1)
+        cyclematrix[k,][which(cyclematrix[k,]==1)] <-gind}
+      cyclematrix <- cyclematrix[,
+                                 order(sapply(1:dim(cyclematrix)[2],
+                                              function(x){sum(cyclematrix[,x] == 0)}))]
+      #At this point, some rows in cyclematrix will have several entries
+      #so which cycles should we assign those edges to?
+
+      cmcheck <- matrix(NA, nrow = dim(cyclematrix)[1], ncol= dim(cyclematrix)[2])
+
+      for(i in 1:dim(cyclematrix)[2]){
+        for(j in 1:dim(cyclematrix)[1]){
+          if(cyclematrix[j,i] == 0){}
+          else{
+            value <- cyclematrix[j,i]
+            match <- which(cyclematrix[,i] == value*-1)[1]
+            if(is.na(match)){}
+            else{
+              cmcheck[j,i] <- match
+              cmcheck[match, i] <- j
+            }
+          }
+        }
+      }
+
+      cmmatch <- !t(apply(cmcheck, MARGIN = 1, function(x){!is.na(x) *!duplicated(x)}))
+
+      countmatched <- apply(cmmatch, MARGIN = 1, sum)
+
+      if(any(countmatched>1)){
+        print("Warning: uncertain subgraph swap assignments - topo changes may be overcounted")
+      }
+      cyclematrix <- cyclematrix * cmmatch
+
+      cycleresults <- data.frame(cycle = paste0("c",1:dim(cyclematrix)[2]))
+      cycleresults$unpartnered <- abs(apply(cyclematrix,
+                                            MARGIN = 2, sum))
+      cycleresults$partnerpairs <- apply(cyclematrix,
+                                         MARGIN = 2,
+                                         FUN = function(x){
+                                           min(c(sum(x == -1),
+                                                 sum(x == 1)))
+                                         })
+      tc$swaps <- sum(cycleresults$partnerpairs)
+      tc$other <- sum(cycleresults$unpartnered)}
+
+
+  }
+
+    # how to avoid double-counting when a cycle appears in more than one sharedcycle?
+    # total count for outputs must equal the number of unmatched edges
+    # start scanning the smallest sharedcycles, then move out to the larger ones
+    # don't overwrite.
+    # the return value is
+    #list(swaps= a, other = b), where a + b = # unmatched edges from unrs
 
   # Tally changes
   nodeChanges <- sum(sapply(uniquevertices,length))
-  topoSwaps <- length(which(!is.na(g1.df$topochange)))
-  newEdges <- sum(length(which(g1.df$unresolved)),length(which(g2.df$unresolved)))
+  topoSwaps <- tc$swaps
+  newEdges <- tc$other
 
   return(list(
     g1.df = g1.df,
