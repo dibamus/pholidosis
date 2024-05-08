@@ -250,9 +250,9 @@ graphEditDist <- function(g1,g2){
         if(unrs$graph[k] == "g1"){gind =1}
         else(gind = -1)
         cyclematrix[k,][which(cyclematrix[k,]==1)] <-gind}
-      cyclematrix <- cyclematrix[,
+      cyclematrix <- subset(cyclematrix, select =
                                  order(sapply(1:dim(cyclematrix)[2],
-                                              function(x){sum(cyclematrix[,x] == 0)}))]
+                                              function(x){sum(cyclematrix[,x] == 0)})))
       #At this point, some rows in cyclematrix will have several entries
       #so which cycles should we assign those edges to?
 
@@ -274,13 +274,17 @@ graphEditDist <- function(g1,g2){
       }
 
       cmmatch <- !t(apply(cmcheck, MARGIN = 1, function(x){!is.na(x) *!duplicated(x)}))
+      if(dim(cmmatch)[1]==1){
+        cmmatch <- t(cmmatch)
+      }
 
       countmatched <- apply(cmmatch, MARGIN = 1, sum)
 
       if(any(countmatched>1)){
         print("Warning: uncertain subgraph swap assignments - topo changes may be overcounted")
       }
-      cyclematrix <- cyclematrix * cmmatch
+      
+      cyclematrix <- cyclematrix * cmmatch 
 
       cycleresults <- data.frame(cycle = paste0("c",1:dim(cyclematrix)[2]))
       cycleresults$unpartnered <- abs(apply(cyclematrix,
