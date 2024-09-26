@@ -171,6 +171,7 @@ graphEditDist <- function(g1,g2){
 
   # which edges are shared in the "problemareas"
   # these should resolve to complete cycles (polygons) surrounding unresolved edges
+  #PROBLEM: Edges that are at the perimeter
 
   #Make a graph of all the problem areas minus the unresolved edges.
 
@@ -195,7 +196,7 @@ graphEditDist <- function(g1,g2){
   if(!all(is.na(combined))){
     #make this edgelist into a graph
     #delete any duplicated edges using "simplify()"
-    problemPolys <- simplify(graph_from_edgelist(as.matrix(combined), directed = F))
+    problemPolys <- igraph::simplify(graph_from_edgelist(as.matrix(combined), directed = F))
     if(length(problemPolys)!=0){
       # if an edge not in problemPolys can be replaced with a path in problempolys
       # (using spa), then it has a substitute in the other graph
@@ -273,7 +274,7 @@ graphEditDist <- function(g1,g2){
         }
       }
 
-      cmmatch <- !t(apply(cmcheck, MARGIN = 1, function(x){!is.na(x) *!duplicated(x)}))
+      cmmatch <- t(apply(cmcheck, MARGIN = 1, function(x){!is.na(x) *!duplicated(x)})) # I think an accidental negation here destroyed the code...
 
       countmatched <- apply(cmmatch, MARGIN = 1, sum)
 

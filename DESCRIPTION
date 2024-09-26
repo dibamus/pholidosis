@@ -15,4 +15,4 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/dibamus/pholidosis
 BugReports: https://github.com/dibamus/pholidosis/issues
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
