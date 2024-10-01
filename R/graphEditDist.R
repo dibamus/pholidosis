@@ -125,7 +125,6 @@ graphEditDist <- function(g1,g2){
   g1.unresolved <- g1.df[g1.df$unresolved,]
   g2.unresolved <- g2.df[g2.df$unresolved,]
 
-
   #### BEGIN ALTERNATIVE APPROACH ####
   # This approach relies on a fully-triangulated graph
   # It detects cycles by creating a subgraph containing all of the vertices
@@ -148,7 +147,6 @@ graphEditDist <- function(g1,g2){
                                    )
   cl <- findCycles(consensus.cycles, minlength = 4) %>%
     lapply(FUN = function(x){x[-1]}) #remove the first vertex of each cycle (unnamed)
-
 
   # #tester
   # cl <- list(c(a = 1, b=2, c=3, d=4),
@@ -201,6 +199,27 @@ graphEditDist <- function(g1,g2){
    g1.unresolved$cycle <- NA
    g2.unresolved$cycle <- NA
 
+
+  # rmCy is missing an entry for the smallest cycle
+  rmCy <- append(rmCy,FALSE)
+
+  #and it's reversed relative to the order of cyclelengths
+  # let's set that straight add the info about which cycles are composite to cyclelengths
+  cyclelengths$composite <- rev(rmCy)
+
+  #ok, let's get rid of these composite cycles
+  cyclelengths <- cyclelengths[!cyclelengths$composite,]
+
+
+  # Now I need to write a for loop that matches these cycles to edges from
+  # g1.unresolved and g2.unresolved.
+  # A cycle is cleared once all of its vertices are matched to a vertex from
+  # one of those dfs.
+  # the number of changes represented by each cycle is equal to the number of
+  # edges from g1 (or g2) that are matched to it
+   g1.unresolved$cycle <- NA
+   g2.unresolved$cycle <- NA
+
   cyclelengths$matches <- sapply(1:dim(cyclelengths)[1],function(x){
     cycle <- cl[[x]]
     vn <- names(cycle)
@@ -212,14 +231,12 @@ graphEditDist <- function(g1,g2){
         matched[which(vn %in% g1.unresolved[i,1:2])] <- paste0("g1","-",i)
         g1.unresolved$cycle[i] <<- x
         #the match is in row i of g1.unresolved
-
         for (j in 1:dim(g2.unresolved)[1]){
           if(all(g2.unresolved[j,1:2] %in% vn.remainder)){
             vn.remainder <- vn.remainder[!(vn.remainder %in% g2.unresolved[j,1:2])]
             g2.unresolved$cycle[j] <<- x
             #the match is in row j of g2.unresolved
             matched[which(vn %in% g2.unresolved[j,1:2])] <- paste0("g2","-",j)
-
           }
         }
       }
@@ -244,209 +261,6 @@ graphEditDist <- function(g1,g2){
   nodeChanges <- sum(sapply(uniquevertices,length))
   topoSwaps <- sum(cyclelengths$topochanges)
   newEdges <- 0
-
-  #### END ALTERNATIVE APPROACH ####
-
-  # g1.E.VofI <- data.frame(g1.E[apply(g1.E, MARGIN = 1,
-  #                                    FUN = function(x){any(x %in% unique(unlist(g1.unresolved[,1:2])))}),])
-  # g2.E.VofI <- data.frame(g2.E[apply(g2.E, MARGIN = 1,
-  #                                    FUN = function(x){any(x %in% unique(unlist(g2.unresolved[,1:2])))}),])
-  #
-  #
-  #
-  #
-  #
-  # #does an edge make up a single connection between two subgraphs?
-  # singleconnection <- function(e,el){
-  #   el <- el[,1:2]
-  #   i <- findedge(e,el)
-  #   el <- el[-i,]
-  #
-  #   #are all the scales in edge e still present in the new edgelist
-  #
-  #   if(!all(unlist(e) %in% unlist(el))){#not all scales present
-  #     #this is a single connection
-  #     sp <- T
-  #   }
-  #   else{
-  #     #make a graph from the new edgelist
-  #     g<- graph_from_edgelist(as.matrix(el),directed = FALSE)
-  #
-  #     #find the shortest path between the vertices of e in g
-  #     sp <- suppressWarnings({ #the shortest_paths function will likely find
-  #       # cases where there is no connection between the two vertices. This is
-  #       # a feature, (we want to know if there is no path), so I elect to
-  #       # suppress the following warning message, which tells the user when no
-  #       # path can be found:
-  #       # "In shortest_paths(graph = g,
-  #       # from = which(V(g)$name == as.character(e[1])),  :
-  #       # At core/paths/unweighted.c:368 : Couldn't reach some vertices."
-  #
-  #       shortest_paths(graph = g,
-  #                      from = which(V(g)$name == as.character(e[1])),
-  #                      to = which(V(g)$name == as.character(e[2])),
-  #                      output = "vpath")$vpath[[1]]
-  #     })
-  #     #if shortest_paths can't find a connection, sp is character(0)
-  #     #
-  #     #if sp has a length greater than 4, the original edge is not part of any triangles
-  #     # - since it is not part of a triangle, it can't be involved in any tight
-  #     #   substitution groups
-  #
-  #     if (length(sp)==0 | length(sp)>4){
-  #       sp <- T
-  #     }
-  #     else(sp <- F)
-  #   }
-  #
-  #   return(sp)
-  # }
-  #
-  # # find the areas of a graph that include & surround unresolved edges
-  # problemareas <- list(g1 = g1.E.VofI[!apply(g1.E.VofI, MARGIN = 1, FUN = singleconnection, el = g1.E.VofI),],
-  #                      g2 = g2.E.VofI[!apply(g2.E.VofI, MARGIN = 1, FUN = singleconnection, el = g2.E.VofI),])
-  #
-  # # which edges are shared in the "problemareas"
-  # # these should resolve to complete cycles (polygons) surrounding unresolved edges
-  # #PROBLEM: Edges that are at the perimeter
-  #
-  # #Make a graph of all the problem areas minus the unresolved edges.
-  #
-  # #combine problem areas into a single edgelist (the perimeter)
-  # allprob <- rbind(
-  #   problemareas$g1,
-  #   problemareas$g2)
-  #
-  # #find which edges are unresolved so they can be excluded from the perimeter
-  # unrs <- rbind(g1.df[which(g1.df$unresolved),],
-  #               g2.df[which(g2.df$unresolved),])
-  # unrs$graph <- c(rep("g1", times = length(which(g1.df$unresolved))),
-  #                 rep("g2", times = length(which(g2.df$unresolved)))
-  #                 )
-  # combined <- NA
-  #
-  # if(!all(is.na(unrs))){ #remove those unwanted edges from the edgelist
-  #   combined <- allprob[is.na(cgraph(allprob, unrs[,1:2])),]
-  # }
-  # problemPolys <- NULL
-  #
-  # if(!all(is.na(combined))){
-  #   #make this edgelist into a graph
-  #   #delete any duplicated edges using "simplify()"
-  #   problemPolys <- igraph::simplify(graph_from_edgelist(as.matrix(combined), directed = F))
-  #   if(length(problemPolys)!=0){
-  #     # if an edge not in problemPolys can be replaced with a path in problempolys
-  #     # (using spa), then it has a substitute in the other graph
-  #     # not necessarily due to an edge swap, it can be due to simply adding an edge
-  #     g1.df$topochange[g1.df$unresolved] <- spa(g1.df[g1.df$unresolved,],
-  #                                               problemPolys,
-  #                                               uniqueV = NULL)
-  #     g1.df$unresolved[!is.na(g1.df$topochange)] <- FALSE
-  #
-  #     g2.df$topochange[g2.df$unresolved] <- spa(g2.df[g2.df$unresolved,],
-  #                                               problemPolys,
-  #                                               uniqueV = NULL)
-  #     g2.df$unresolved[!is.na(g2.df$topochange)] <- FALSE
-  #   }
-  # }
-  #
-  # #Initialize a list of topo changes
-  # tc <- list(swaps = 0, other = 0)
-  #
-  # if(!is.null(problemPolys)){
-  #   sharedcycles <- findCycles(problemPolys) # find cycles in problempolys
-  #
-  #   if(length(sharedcycles)==0){
-  #     tc$other = dim(unrs)[1] # if no cycles, no swaps, so all the topo changes are "other"
-  #   }
-  #
-  #   #NOTE: I am not providing a full implementation of this now, just an estimator
-  #   # the code below estimates which edges are toposwaps -
-  #   #it is not a complete solution but should work for most cases now
-  #   else{
-  #
-  #     rmCy <- sapply(sharedcycles, function(x){ # find cycles that do not contain other cycles
-  #       sum(sapply(sharedcycles, function(y){all(y %in% x)}))
-  #     }) <= 2 # every cycle should only contain all the elements of itself
-  #     sharedcycles <- sharedcycles[rmCy]
-  #
-  #     unrs$cycles <- NA
-  #     unrs$potswap <- NA
-  #
-  #     for(i in 1:dim(unrs)[1]){
-  #       e <- unrs[i,1:2]
-  #       incy <- sapply(sharedcycles, function(x){all(e %in% names(x))})
-  #       unrs$cycles[i] <- list(incy)
-  #     }
-  #     #matrix - rows are the edges in question, columns are the cycles
-  #
-  #     #NOTE: this does not account for edges that may be a part of more than one cycle,
-  #     # but for now it should be fine
-  #
-  #     cyclematrix <- matrix(unlist(unrs$cycles), nrow = dim(unrs)[1], byrow = TRUE)
-  #     for( k in 1:dim(unrs)[1]){
-  #       if(unrs$graph[k] == "g1"){gind =1}
-  #       else(gind = -1)
-  #       cyclematrix[k,][which(cyclematrix[k,]==1)] <-gind}
-  #     cyclematrix <- cyclematrix[,
-  #                                order(sapply(1:dim(cyclematrix)[2],
-  #                                             function(x){sum(cyclematrix[,x] == 0)}))]
-  #     #At this point, some rows in cyclematrix will have several entries
-  #     #so which cycles should we assign those edges to?
-  #
-  #     cmcheck <- matrix(NA, nrow = dim(cyclematrix)[1], ncol= dim(cyclematrix)[2])
-  #
-  #     for(i in 1:dim(cyclematrix)[2]){
-  #       for(j in 1:dim(cyclematrix)[1]){
-  #         if(cyclematrix[j,i] == 0){}
-  #         else{
-  #           value <- cyclematrix[j,i]
-  #           match <- which(cyclematrix[,i] == value*-1)[1]
-  #           if(is.na(match)){}
-  #           else{
-  #             cmcheck[j,i] <- match
-  #             cmcheck[match, i] <- j
-  #           }
-  #         }
-  #       }
-  #     }
-  #
-  #     cmmatch <- t(apply(cmcheck, MARGIN = 1, function(x){!is.na(x) *!duplicated(x)})) # I think an accidental negation here destroyed the code...
-  #
-  #     countmatched <- apply(cmmatch, MARGIN = 1, sum)
-  #
-  #     if(any(countmatched>1)){
-  #       print("Warning: uncertain subgraph swap assignments - topo changes may be overcounted")
-  #     }
-  #     cyclematrix <- cyclematrix * cmmatch
-  #
-  #     cycleresults <- data.frame(cycle = paste0("c",1:dim(cyclematrix)[2]))
-  #     cycleresults$unpartnered <- abs(apply(cyclematrix,
-  #                                           MARGIN = 2, sum))
-  #     cycleresults$partnerpairs <- apply(cyclematrix,
-  #                                        MARGIN = 2,
-  #                                        FUN = function(x){
-  #                                          min(c(sum(x == -1),
-  #                                                sum(x == 1)))
-  #                                        })
-  #     tc$swaps <- sum(cycleresults$partnerpairs)
-  #     tc$other <- sum(cycleresults$unpartnered)}
-  #
-  #
-  # }
-  #
-  #   # how to avoid double-counting when a cycle appears in more than one sharedcycle?
-  #   # total count for outputs must equal the number of unmatched edges
-  #   # start scanning the smallest sharedcycles, then move out to the larger ones
-  #   # don't overwrite.
-  #   # the return value is
-  #   #list(swaps= a, other = b), where a + b = # unmatched edges from unrs
-#
-#   # Tally changes
-#   nodeChanges <- sum(sapply(uniquevertices,length))
-#   topoSwaps <- tc$swaps
-#   newEdges <- tc$other
-  #### END OLD APPROACH ####
 
   return(list(
     g1.df = g1.df,
