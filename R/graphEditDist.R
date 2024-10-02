@@ -199,27 +199,6 @@ graphEditDist <- function(g1,g2){
    g1.unresolved$cycle <- NA
    g2.unresolved$cycle <- NA
 
-
-  # rmCy is missing an entry for the smallest cycle
-  rmCy <- append(rmCy,FALSE)
-
-  #and it's reversed relative to the order of cyclelengths
-  # let's set that straight add the info about which cycles are composite to cyclelengths
-  cyclelengths$composite <- rev(rmCy)
-
-  #ok, let's get rid of these composite cycles
-  cyclelengths <- cyclelengths[!cyclelengths$composite,]
-
-
-  # Now I need to write a for loop that matches these cycles to edges from
-  # g1.unresolved and g2.unresolved.
-  # A cycle is cleared once all of its vertices are matched to a vertex from
-  # one of those dfs.
-  # the number of changes represented by each cycle is equal to the number of
-  # edges from g1 (or g2) that are matched to it
-   g1.unresolved$cycle <- NA
-   g2.unresolved$cycle <- NA
-
   cyclelengths$matches <- sapply(1:dim(cyclelengths)[1],function(x){
     cycle <- cl[[x]]
     vn <- names(cycle)
