@@ -139,12 +139,22 @@ graphEditDist <- function(g1,g2){
 
   unrs.V <- unique(c(unlist(g1.unresolved[,1:2]),unlist(g2.unresolved[,1:2])))
 
-  g1.cycles <- subgraph(g1,match(unrs.V,V(g1)$name))
-  consensus.cycles <- delete_edges(g1.cycles,
+  g1.cycles <- subgraph(g1,match(unrs.V,V(g1)$name)) #get the cycles around unmatched edges
+  g2.cycles <- subgraph(g2,match(unrs.V,V(g2)$name))
+
+  g1.cycles <- delete_edges(g1.cycles, #remove the unresolved edges
                                    get.edge.ids(g1.cycles,
                                                 as.matrix(g1.unresolved[,1:2]) %>%
                                                   t() %>% c())
                                    )
+  g2.cycles <- delete_edges(g2.cycles,
+                            get.edge.ids(g2.cycles,
+                                         as.matrix(g2.unresolved[,1:2]) %>%
+                                           t() %>% c())
+  )
+
+  consensus.cycles <- g1.cycles + g2.cycles
+
   cl <- findCycles(consensus.cycles, minlength = 4) %>%
     lapply(FUN = function(x){x[-1]}) #remove the first vertex of each cycle (unnamed)
 
