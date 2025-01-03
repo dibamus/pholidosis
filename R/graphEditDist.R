@@ -56,10 +56,11 @@ graphEditDist <- function(g1,g2){
           g3 <- g
         }
         #and continue
-        x <- shortest_paths(graph = g3,
+        x <- suppressWarnings( # some vertices it tries may be unreachable, but that's ok
+          shortest_paths(graph = g3,
                             from = which(V(g3)$name == df[i,1]),
                             to = which(V(g3)$name == df[i,2]),
-                            output = "vpath")$vpath[[1]]
+                            output = "vpath")$vpath[[1]])
         vs <- as_ids(x)
         nv <- vs[which(!(vs %in% df[i,1:2]))]
         if(length(nv)==0){
