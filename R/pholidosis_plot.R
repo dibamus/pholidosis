@@ -5,6 +5,7 @@
 #' This function uses the ggraph package to estimate a good layout for a
 #' pholidosis network
 #' different edges, and different edge weights.
+#' @import ggplot2
 #' @import ggraph
 #' @import tidygraph
 #' @importFrom igraph delete_vertices

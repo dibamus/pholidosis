@@ -18,8 +18,9 @@
 #' @param checkAsymmetry A logical scalar, if TRUE, the function checks whether
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
-#' @param setup_fun A setup funtion th help plot the netowrk. See the "lizard_setup" function for an example
-#' @return An igraph object, the scale network.
+#' @param setup_fun A setup function th help plot the netowrk. See the "lizard_setup" function for an example
+#' @return An igraph object: If df is valid according to verifyMatrix,
+#' the pholidosis network. If df is not a valid matrix, an empty graph.
 #'
 #' @examples
 #' library(readxl)
@@ -30,6 +31,11 @@
 #' @export
 
 scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
+  if(any(colnames(df) == "bad.input.matrix")){ # verifyMatrix found a matrix error
+    if(verbose){cat(" not converted")}
+    return(empty_graph())
+  }
+
   mat <-as.matrix(df) # read in adjacency matrix file
   mat[is.na(mat)] <- 0 # set all NA links to 0
 
@@ -43,8 +49,8 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun
   if(any(row.names(mat) != colnames(mat))){ #if the row and column names don't match
     #tell the user which ones don't match
 
-    if(verbose) {cat("One or more row names do not match the column names:\n")
-    cat(row.names(mat)[which(row.names(mat) != colnames(mat))],"\n\n")}
+    if(verbose) {warning("One or more row names do not match the column names:\n",
+                         row.names(mat)[which(row.names(mat) != colnames(mat))],"\n")}
 
     #then return
     return()
@@ -53,22 +59,17 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun
 
   # check if matrix is empty:
   if(sum(mat) ==0) {
-    make_empty_graph()
-    print("graph is empty")
+    warning("graph is empty\n")
+    return(empty_graph())
+
   }
 
   #if matrix is not empty
   else{
     if (sym) { # yes, it is symmetric - complete the import
 
-      graph <- graph_from_adjacency_matrix(weighted = T, adjmatrix = mat, mode = "undirected")
+      graph <- graph_from_adjacency_matrix(adjmatrix = mat, weighted = T, mode = "undirected")
       graph <- clean_isolates(graph) #get rid of any isolated vertices
-
-      if(length(E(graph)) != (3*length(V(graph)))-6){
-
-        print("graph is not spherical: E != 3V-6")
-        print("loading graph for visualization only - NOT suitable for comparisons")
-      }
 
       #update the edge weights - they should range from 1-2, not 1-3
 	    E(graph)$weight <- sapply(E(graph)$weight, FUN = function(x){(x + 1)/2})
@@ -82,7 +83,7 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun
     }
 
     else { #the matrix is not symmetric - correct it
-      if(verbose){cat("asymmetric matrix","\n",
+      if(verbose){warning("asymmetric matrix","\n",
           "Coordinates of asymmertic entries:","\n",
           which(mat != t(mat), arr.ind = TRUE),"\n")}
       }
