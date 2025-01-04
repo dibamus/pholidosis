@@ -13,13 +13,12 @@
 #' measurement.
 #'
 #' @import stringr tidyverse
-#' @importFrom igraph graph_from_adjacency_matrix
+#' @importFrom igraph graph_from_adjacency_matrix E
 #' @param df A data frame, the scale table.
 #' @param checkAsymmetry A logical scalar, if TRUE, the function checks whether
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
-#' @param lizard A logical scalar. If TRUE, vertex properties are assigned via
-#' the "lizardSetup" function
+#' @param setup_fun A setup funtion th help plot the netowrk. See the "lizard_setup" function for an example
 #' @return An igraph object, the scale network.
 #'
 #' @examples
@@ -30,7 +29,7 @@
 #'
 #' @export
 
-scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, lizard = TRUE){
+scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
   mat <-as.matrix(df) # read in adjacency matrix file
   mat[is.na(mat)] <- 0 # set all NA links to 0
 
@@ -65,11 +64,17 @@ scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, lizard = 
       graph <- graph_from_adjacency_matrix(weighted = T, adjmatrix = mat, mode = "undirected")
       graph <- clean_isolates(graph) #get rid of any isolated vertices
 
-      #give scales appropriate ordination and name properties
-      if(lizard){
-        graph <- lizard_setup(graph)
-        }
+      if(length(V(graph)) != (3*length(E(graph)))-6){
 
+        print("graph is not spherical: E != 3V-6")
+        print("loading graph for visualization only - NOT suitable for comparisons")
+      }
+
+      #update the edge weights - they should range from 1-2, not 1-3
+	    E(graph)$weight <- sapply(E(graph)$weight, FUN = function(x){(x + 1)/2})
+
+      #apply setup function to the graph to produce additional vertex and edge attributes
+      graph <- setup_fun(graph)
 
       if(verbose){cat(" converted")}
 

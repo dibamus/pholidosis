@@ -1,4 +1,5 @@
 #' Set up a graph with everything needed to plot out a comprehensible lizard.
+#' @importfrom stringr str_replace_all
 #' @param graph An igraph object, the scale network to be set up.
 #' @param firstscale A character scalar, the name of a vertex in graph that should
 #'    be used for anterior-posterior ordination. Usually, the most anterior scale
@@ -6,7 +7,7 @@
 #' @return An igraph object with the following vertex attributes:
 #'    str - the strength of the vertex
 #'    deg - the degree of the vertex
-#'    scaletype - the general scale type the vertex corresponds to; the name, ignoring
+#'    vertextype - the general scale type the vertex corresponds to; the name, ignoring
 #'        any ordination or enumeration
 #'    pos - distance from the firstscale
 #'    side - 0 for scales on the midline; 1 for Right side; -1 for left side
@@ -23,7 +24,7 @@
 #' vertex_attr(anelytropsis.net) #vertices only have a name attribute
 #'
 #' anelytropsis.net <- lizard_setup(anelytropsis.net) #now each vertex has name
-#' # strength, degree, scaletype, position, and side attributes!
+#' # strength, degree, vertextype, position, and side attributes!
 #'
 #' @export
 lizard_setup <- function(graph, firstscale = 'rostral'){
@@ -31,10 +32,9 @@ lizard_setup <- function(graph, firstscale = 'rostral'){
   V(graph)$str <- igraph::strength(graph) # access strength (sum of vertex weights) for each node
   V(graph)$deg <- igraph::degree(graph)
 
-  E(graph)$weight <- sapply(E(graph)$weight, FUN = function(x){(x + 1)/2})
-
   #store general scale name (name stripped of any numbers, R/L indicators, underscores)
-  V(graph)$scaletype <- str_replace_all(names(V(graph)), "[0123456789_RL]","")
+  V(graph)$vertextype <- str_replace_all(names(V(graph)), "[0123456789_RL]","")
+  V(graph)$unplotted <- names(V(graph)) %in% c("mouth","body") # we don't want to plot the head and body scales
 
 
   #ORDINATION
