@@ -9,6 +9,7 @@
 #' @importFrom readxl excel_sheets read_excel
 #' @param filename A character vector specifying the file path of the excel file.
 #' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
+#' @param ... other parameters, including a setup function for use by scaleNetwork()
 #' @return A list of igraph objects, one for each sheet in the file.
 #' @examples
 #'
@@ -18,7 +19,7 @@
 #' @export
 
 #IMPORT FROM EXCEL
-excel_to_network <- function(filename, verbose = FALSE) {
+excel_to_network <- function(filename, verbose = FALSE, ...) {
   sheets <- excel_sheets(filename)
 
   ls <- lapply(sheets, function(s){

@@ -12,11 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This vignette demonstrates the functionality of the ```pholidosis``` package, which implements a novel methodology for comparing biological surface patterns with clear homology relationships. The primary goal of ```pholidosis``` is to construct  an edit distance matrix that measures the difference between patterns.  
 
-The document below provides a straightforward demonstration of the ```pholidosis``` workflow, beginning with an excel workbook and ending with a Principal Coordinates analysis based on the edit distance matrix for a set of head scalation patterns of dibamid lizards (family Dibamidae) from (my paper).
+The document below provides a straightforward demonstration of the ```pholidosis``` workflow, beginning with an excel workbook and ending with a Principal Coordinates analysis based on the edit distance matrix for a set of head scalation patterns of dibamid lizards (family Dibamidae).
 
 Future releases will provide more detailed insight into the package's functions and should provide some help in troubleshooting when you want to use your own data. 
 
-## 1 - Installation
+## 1 Installation
 ```pholidosis``` makes heavy use of the ```igraph``` R package. See <https://r.igraph.org/> for instructions on installing this package, which may require installing dependencies outside of R.
 
 ```pholidosis``` can be installed from GitHub with:
@@ -29,19 +29,21 @@ Functions in ```pholidosis``` use various dependencies:
 ```{r eval =F}
 library('dplyr')
 library('igraph')
+library ('ggraph')
 library('readxl')
 library('stringr')
 library('tibble')
+library('tidygraph')
 library('tidyverse')
 library('utils')
 ```
 
-## 2 - Quick start example
+## 2 Quick start example
 
 Let's walk through using ```pholidosis``` to import a set of adjacency matrices, visualize their corresponding graphs, and produce a distance matrix.
 
 To run this tutorial, you'll need the following packages loaded:
-```{r}
+```{r packages}
 library('igraph')
 library('pholidosis')
 library('readxl') 
@@ -57,7 +59,8 @@ ntw <- excel_to_network(pth)
 
 Let's take a quick look at a graph to see what it looks like.
 
-```{r plot, message = FALSE, warning = FALSE}
+```{r plot, warning = FALSE, message = FALSE}
+
 pholidosis_plot(ntw[[1]], title = "Anelytropsis papillosus \npholidosis network")
 ```
 
@@ -84,6 +87,7 @@ comb.dist[which(is.na(comb.dist))] <- 0
 comb.dist <- comb.dist + t(comb.dist) # reflect the data so it's easier to look up distances
 ```
 
+### 2.3 Visualize distances
 We can visualize the distances between the species using Principal Coordinates Analysis:
 
 ```{r PCoA plot}
