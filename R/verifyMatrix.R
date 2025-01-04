@@ -74,12 +74,13 @@ verifyMatrix <- function(df, verbose = TRUE, edgecodes = 1:3){
       rowName = row.names(df)[mismatched])
     if(verbose){cat("\n mismatched column & row names \n")
       print(check_names)
-
-      cat("\n deleting false columns\n")}
-    df <- df[,-check_names$index[which(is.na(check_names$rowName))]]
-
-    if(verbose){cat("\n reverifying matrix")}
-    verifyMatrix(df)
+    }
+    return()
+    #   cat("\n deleting false columns\n")}
+    # df <- df[,-check_names$index[which(is.na(check_names$rowName))]]
+    #
+    # if(verbose){cat("\n reverifying matrix")}
+    # verifyMatrix(df)
   }
 
   #are there non-numeric data in the matrix?
