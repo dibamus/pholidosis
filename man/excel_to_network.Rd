@@ -4,12 +4,14 @@
 \alias{excel_to_network}
 \title{excel_to_network}
 \usage{
-excel_to_network(filename, verbose = FALSE)
+excel_to_network(filename, verbose = FALSE, ...)
 }
 \arguments{
 \item{filename}{A character vector specifying the file path of the excel file.}
 
 \item{verbose}{A logical vector. If TRUE, funciton prints progress and errors.}
+
+\item{...}{other parameters, including a setup function for use by scaleNetwork()}
 }
 \value{
 A list of igraph objects, one for each sheet in the file.

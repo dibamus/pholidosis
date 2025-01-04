@@ -1,5 +1,6 @@
 #' Set up a graph with everything needed to plot out a comprehensible lizard.
-#' @importfrom stringr str_replace_all
+#' @importFrom stringr str_replace_all
+#' @importFrom igraph V strength degree
 #' @param graph An igraph object, the scale network to be set up.
 #' @param firstscale A character scalar, the name of a vertex in graph that should
 #'    be used for anterior-posterior ordination. Usually, the most anterior scale

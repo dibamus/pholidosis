@@ -4,16 +4,13 @@
 \alias{pholidosis_plot}
 \title{pholidosis_plot}
 \usage{
-pholidosis_plot(g, title = NULL, body = TRUE, ...)
+pholidosis_plot(g, title = NULL, layout = "stress", ...)
 }
 \arguments{
 \item{g}{An igraph object: the pholidosis network you want to plot}
 
-\item{title}{A character vector: the title for the graph}
-
-\item{body}{A boolean. If true (default), this removes the irst two vertices
-of the network, which should correspond to the "head" and "body" vertices.
-This makesit easier to project the plot onto a flat surface.}
+\item{title}{A character vector: the title for the graph
+$param layout a layout function}
 }
 \value{
 a ggplot plot of the pholidosis network

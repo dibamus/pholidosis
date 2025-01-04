@@ -4,7 +4,12 @@
 \alias{scaleNetwork}
 \title{scaleNetwork}
 \usage{
-scaleNetwork(df, checkAsymmetry = FALSE, verbose = FALSE, lizard = TRUE)
+scaleNetwork(
+  df,
+  checkAsymmetry = FALSE,
+  verbose = FALSE,
+  setup_fun = lizard_setup
+)
 }
 \arguments{
 \item{df}{A data frame, the scale table.}
@@ -14,8 +19,7 @@ df is a symmetric matrix}
 
 \item{verbose}{A logical scalar. If TRUE, the function prints errors when they occur.}
 
-\item{lizard}{A logical scalar. If TRUE, vertex properties are assigned via
-the "lizardSetup" function}
+\item{setup_fun}{A setup funtion th help plot the netowrk. See the "lizard_setup" function for an example}
 }
 \value{
 An igraph object, the scale network.
