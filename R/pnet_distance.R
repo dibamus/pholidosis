@@ -31,8 +31,8 @@ pnet_distance <- function(g1,g2, truncate = TRUE){
   g1.E <- data.frame(as_edgelist(g1),weight = E(g1)$weight, indep.weight = (E(g1)$weight -1))
   g2.E <- data.frame(as_edgelist(g2),weight = E(g2)$weight, indep.weight = (E(g2)$weight -1))
 
-  g1.E$match <- !is.na(cgraph(g1.E[,1:2],g2.E[,1:2]))
-  g2.E$match <- !is.na(cgraph(g2.E[,1:2],g1.E[,1:2]))
+  g1.E$match <- !is.na(compare_graphs(g1.E[,1:2],g2.E[,1:2]))
+  g2.E$match <- !is.na(compare_graphs(g2.E[,1:2],g1.E[,1:2]))
 
   g1.E$indep.weight[g1.E$match] <- 0
   g2.E$indep.weight[g2.E$match] <- 0
@@ -42,7 +42,7 @@ pnet_distance <- function(g1,g2, truncate = TRUE){
   g.U$g2weight <- apply(g.U[,1:2],
                         MARGIN = 1,
                         function(x){
-                          E(g2)$weight[findedge(x, g2.E[,1:2])]
+                          E(g2)$weight[find_edge(x, g2.E[,1:2])]
                         })
 
   g.U$wDiff <- (g.U$weight - g.U$g2weight) # this is now accounted for in lizard_setup.R

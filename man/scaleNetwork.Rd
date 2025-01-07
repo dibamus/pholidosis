@@ -19,10 +19,11 @@ df is a symmetric matrix}
 
 \item{verbose}{A logical scalar. If TRUE, the function prints errors when they occur.}
 
-\item{setup_fun}{A setup funtion th help plot the netowrk. See the "lizard_setup" function for an example}
+\item{setup_fun}{A setup function th help plot the netowrk. See the "lizard_setup" function for an example}
 }
 \value{
-An igraph object, the scale network.
+An igraph object: If df is valid according to verifyMatrix,
+the pholidosis network. If df is not a valid matrix, an empty graph.
 }
 \description{
 This loads a dataframe (df) of scale relationships as an igraph object

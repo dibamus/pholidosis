@@ -1,4 +1,5 @@
 #' Clean a graph
+#' JAN 6 2024 - DEPRECATED
 #' Tidy up a graph that's been spit out of an automated process.
 #' @param g An igraph object.
 #' @importFrom igraph as_edgelist graph_from_edgelist

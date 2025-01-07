@@ -6,11 +6,11 @@
 #' @importFrom igraph neighbors all_simple_paths
 #' @return A list of cycles as vertex paths through the graph g
 #' @examples
-#' findCycles(simpleGs$g6)
-#' findCycles(simpleGs$g6, minlength = 4)
+#' find_cycles(simpleGs$g6)
+#' find_cycles(simpleGs$g6, minlength = 4)
 #' @export
 
-findCycles<- function(g, minlength = 5){
+find_cycles<- function(g, minlength = 5){
   Cycles <- NULL
   for(v1 in V(g)) {
     for(v2 in neighbors(g, v1, mode="all")) {

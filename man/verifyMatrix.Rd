@@ -4,7 +4,7 @@
 \alias{verifyMatrix}
 \title{verifyMatrix}
 \usage{
-verifyMatrix(df, verbose = TRUE, edgecodes = 1:3)
+verifyMatrix(df, verbose = FALSE, edgecodes = 1:3)
 }
 \arguments{
 \item{df}{A data frame, the scale table.}
@@ -14,12 +14,12 @@ verifyMatrix(df, verbose = TRUE, edgecodes = 1:3)
 \item{edgecodes}{A character/integer vector of codes used to denote different
 edge properties in an adjacency matrix. Defaluts to c(1,2,3), corresponding
 to completely separated, partially fused, and completely fused vertices
-(see Krone 2024)}
+(see Krone pub)}
 }
 \value{
 A data frame, either the original (df), the original data frame modified
-   to work with other pholidosis functions, or a dummy data frame
-   "bad.input.matrix" = 1
+to work with other pholidosis functions, or a dummy data frame
+including a "bad.data.matrix" column and information about the error.
 }
 \description{
 Find problems in an input adjacency matrix.

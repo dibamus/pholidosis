@@ -17,14 +17,16 @@ the data frames built by graphEditDist.}
 }
 \value{
 Either a named vector of length 3, containing:
-  1) the weight difference of shared edges
-  2) the number of edge changes among shared scales
-  3) the number of unshared scales
-  between graphs g1 and g2.
-  OR
-  a list containing:
-  topo - the distance measures and data frames built by graphEditDist
-  measure - the named vector described above.
+\enumerate{
+\item the weight difference of shared edges
+\item the number of edge changes among shared scales
+\item the number of unshared scales
+between graphs g1 and g2.
+OR
+a list containing:
+topo - the distance measures and data frames built by graphEditDist
+measure - the named vector described above.
+}
 }
 \description{
 Measures the full graph edit distance between two graphs.

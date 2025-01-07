@@ -13,12 +13,14 @@ graphEditDist(g1, g2)
 }
 \value{
 A list containing
-   1) g1.df - A data frame of topological changes to g1 and how they were resolved
-   2) g2.df - A data frame of topological changes to g2 and how they were resolved
-   3) distances - a list containing
-       node - the number of un-shared vertices between g1 and g2
-       swap - the number of "edge swaps" between g1 and g2
-       edge - the number of non-"edge swap" unshared edges between g1 and g2
+\enumerate{
+\item g1.df - A data frame of topological changes to g1 and how they were resolved
+\item g2.df - A data frame of topological changes to g2 and how they were resolved
+\item distances - a list containing
+node - the number of un-shared vertices between g1 and g2
+swap - the number of "edge swaps" between g1 and g2
+edge - the number of non-"edge swap" unshared edges between g1 and g2
+}
 }
 \description{
 Graph edit distance, number of topological changes between two planar

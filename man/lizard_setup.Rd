@@ -15,12 +15,12 @@ on the lizar's head. Therefore, this is set by default to 'rostral'}
 }
 \value{
 An igraph object with the following vertex attributes:
-   str - the strength of the vertex
-   deg - the degree of the vertex
-   vertextype - the general scale type the vertex corresponds to; the name, ignoring
-       any ordination or enumeration
-   pos - distance from the firstscale
-   side - 0 for scales on the midline; 1 for Right side; -1 for left side
+str - the strength of the vertex
+deg - the degree of the vertex
+vertextype - the general scale type the vertex corresponds to; the name, ignoring
+any ordination or enumeration
+pos - distance from the firstscale
+side - 0 for scales on the midline; 1 for Right side; -1 for left side
 }
 \description{
 Set up a graph with everything needed to plot out a comprehensible lizard.

@@ -7,7 +7,7 @@
 #' This function takes two graphs and measures edit distance between them,
 #' returning
 #' @import stringr tidyverse
-#' @importFrom igraph V E graph_from_edgelist as_edgelist shortest_paths
+#' @importFrom igraph V E graph_from_edgelist as_edgelist shortest_paths as_undirected
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
 #' @return A list containing
@@ -83,14 +83,16 @@ graphEditDist <- function(g1,g2){
               g2 = as_edgelist(comparisongraph))
 
     df <- data.frame(as_edgelist(graph))
-    df$matched <- !is.na(cgraph(E$g1,E$g2))
+    df$matched <- !is.na(compare_graphs(E$g1,E$g2))
     df$uniqueVs <- apply(df[,1:2], MARGIN = 1, function(x){any(x %in%uV$g1)})
 
     #for unmatched edges: can you find a way between the nodes via the unmatched
     # edges in the comparison graph?
     df$altpath <- NA
     df$altpath[!df$matched & !df$uniqueVs] <- spa(df[(!df$matched & !df$uniqueVs),1:2],
-                                                  cleangraph(difference(comparisongraph, graph)),
+                                                  # jan 6 - removed this line
+                                                  #cleangraph(difference(comparisongraph, graph)),
+                                                  as_undirected(difference(comparisongraph, graph), mode = 'mutual'),
                                                   uV$g2)
 
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
@@ -156,7 +158,7 @@ graphEditDist <- function(g1,g2){
 
   consensus.cycles <- g1.cycles + g2.cycles
 
-  cl <- findCycles(consensus.cycles, minlength = 4) %>%
+  cl <- find_cycles(consensus.cycles, minlength = 4) %>%
     lapply(FUN = function(x){x[-1]}) #remove the first vertex of each cycle (unnamed)
 
   # #tester

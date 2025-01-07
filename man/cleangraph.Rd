@@ -3,6 +3,7 @@
 \name{cleangraph}
 \alias{cleangraph}
 \title{Clean a graph
+JAN 6 2024 - DEPRECATED
 Tidy up a graph that's been spit out of an automated process.}
 \usage{
 cleangraph(g)
@@ -15,5 +16,6 @@ An igraph object, constructed from the edgelist of g
 }
 \description{
 Clean a graph
+JAN 6 2024 - DEPRECATED
 Tidy up a graph that's been spit out of an automated process.
 }

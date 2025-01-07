@@ -18,7 +18,7 @@ morphoMatrix <- function(gl){
   alledges <- function(gl, f = matrix(nrow = 1, ncol = 2), i = 1){
     el <- as_edgelist(gl[[i]])
 
-    newedges <- which(is.na(cgraph(el, f)))
+    newedges <- which(is.na(compare_graphs(el, f)))
     f <- rbind(f, el[newedges,])
 
     if(i == length(gl)){
@@ -39,7 +39,7 @@ morphoMatrix <- function(gl){
 
     states <- apply(totalEdges[,1:2], MARGIN = 1, FUN =
                        function(x){
-                         index <- findedge(x, edgelist)
+                         index <- find_edge(x, edgelist)
                          if(!is.na(index)){
                            index <- weights[index]
                          }
