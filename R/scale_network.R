@@ -3,13 +3,13 @@
 #' This loads a dataframe (df) of scale relationships as an igraph object
 #'
 #' See excel_to_network for importing networks from excel sheets, lizard_setup
-#' for handling the assignment of vertex attributes, and verifyMatrix for
+#' for handling the assignment of vertex attributes, and verify_matrix for
 #' a system handling the individual problems with improperly formatted dataframes
 #' or dataframes with bad (non-numeric) entries.
 #'
 #' If you use the 1-2-3 unfused-partially fused-fused numeric scale in your
 #' matrix, lizard_setup will change your edge weights to 1-1.5-2 to make scale
-#' subtractions and scale fusions numerically equivalent for graphEditDistance
+#' subtractions and scale fusions numerically equivalent for graph_exit_distance
 #' measurement.
 #'
 #' @import stringr tidyverse
@@ -19,7 +19,7 @@
 #' df is a symmetric matrix
 #' @param verbose A logical scalar. If TRUE, the function prints errors when they occur.
 #' @param setup_fun A setup function th help plot the netowrk. See the "lizard_setup" function for an example
-#' @return An igraph object: If df is valid according to verifyMatrix,
+#' @return An igraph object: If df is valid according to verify_matrix,
 #' the pholidosis network. If df is not a valid matrix, an empty graph.
 #'
 #' @examples
@@ -31,7 +31,7 @@
 #' @export
 
 scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
-  if(any(colnames(df) == "bad.input.matrix")){ # verifyMatrix found a matrix error
+  if(any(colnames(df) == "bad.input.matrix")){ # verify_matrix found a matrix error
     if(verbose){cat(" not converted")}
     return(empty_graph())
   }

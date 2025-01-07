@@ -7,7 +7,7 @@
 component_frequencies(charMat)
 }
 \arguments{
-\item{charMat}{A character matrix created by the "morphoMatrix" function}
+\item{charMat}{A character matrix created by the "morpho_matrix" function}
 }
 \value{
 A list of two lists: "EdgeConsistency," the proportion of species in
@@ -22,7 +22,7 @@ How often does each edge and each vertex appear in a dataset?
 }
 \examples{
 data("simpleGs")
-mat <- morphoMatrix(simpleGs)
+mat <- morpho_matrix(simpleGs)
 freq <- component_frequencies(mat)
 freq
 

@@ -6,7 +6,6 @@ test_that("correctly counts edge frequencies", {
                         colnames(mat))
   expect_equal(component_frequencies(mat)$EdgeConsistency,exp_Edges)
 })
-# Might want more later, but this is not an essential function.
 
 test_that("correctly counts vertex frequencies", {
   data('simpleGs', package = 'pholidosis')
@@ -15,3 +14,5 @@ test_that("correctly counts vertex frequencies", {
                            c("A","B","C","D","E"))
   expect_equal(component_frequencies(mat)$VertexConsistency, exp_Vertices)
 })
+
+# Might want more later, but this is not an essential function.

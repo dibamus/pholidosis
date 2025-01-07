@@ -2,14 +2,14 @@
 #'
 #' Import a scale network or many scale networks from an excel file.
 #'
-#' Calls verifyMatrix to troubleshoot and creates igraph objects using
-#' scaleNetwork.
+#' Calls verify_matrix to troubleshoot and creates igraph objects using
+#' scale_network.
 #'
 #' @import tidyverse
 #' @importFrom readxl excel_sheets read_excel
 #' @param filename A character vector specifying the file path of the excel file.
 #' @param verbose A logical vector. If TRUE, funciton prints progress and errors.
-#' @param ... other parameters, including a setup function for use by scaleNetwork()
+#' @param ... other parameters, including a setup function for use by scale_nework()
 #' @return A list of igraph objects, one for each sheet in the file.
 #' @examples
 #'
@@ -25,7 +25,7 @@ excel_to_network <- function(filename, verbose = FALSE, ...) {
   ls <- lapply(sheets, function(s){
     if(verbose){cat(s,"\n")}
     read_excel(filename, sheet = s, trim_ws = TRUE, .name_repair = "minimal") %>%
-                 verifyMatrix(verbose) %>%
+                 verify_matrix(verbose) %>%
                 as.data.frame()})
 
   names(ls) <- sheets #name the dfs
@@ -34,5 +34,5 @@ excel_to_network <- function(filename, verbose = FALSE, ...) {
 
   #This is kind of hacky but it works to tell the user where problems are
   lapply(names(ls), FUN = function(x){if(verbose){cat("\n",x," - ")};
-    scaleNetwork(ls[[x]], verbose = verbose)}) %>% setNames(sheets)
+    scale_network(ls[[x]], verbose = verbose)}) %>% setNames(sheets)
 }

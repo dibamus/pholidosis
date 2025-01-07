@@ -2,7 +2,7 @@
 #'
 #' Measures the full graph edit distance between two graphs.
 #'
-#' This function calls graphEditDistance to get topology changes and also
+#' This function calls graph_edit_distance to get topology changes and also
 #' compares edge weights, presenting the total number of different nodes,
 #' different edges, and different edge weights.
 #'
@@ -11,7 +11,7 @@
 #' @param g2 An igraph object; the second graph.
 #' @param truncate A logical scalar. If TRUE (default), the function returns only
 #'   the three distance measures. If false, it returns the distance measures and
-#'   the data frames built by graphEditDist.
+#'   the data frames built by graph_edit_distance.
 #' @return Either a named vector of length 3, containing:
 #'   1) the weight difference of shared edges
 #'   2) the number of edge changes among shared scales
@@ -19,7 +19,7 @@
 #'   between graphs g1 and g2.
 #'   OR
 #'   a list containing:
-#'   topo - the distance measures and data frames built by graphEditDist
+#'   topo - the distance measures and data frames built by graph_edit_distance
 #'   measure - the named vector described above.
 #' @examples
 #' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
@@ -27,7 +27,7 @@
 #' dist <- pnet_distance(Dib$Anelytropsis_papillosus,Dib$D_alfredi)
 #' @export
 pnet_distance <- function(g1,g2, truncate = TRUE){
-  ed <- graphEditDist(g1,g2)
+  ed <- graph_edit_distance(g1,g2)
   g1.E <- data.frame(as_edgelist(g1),weight = E(g1)$weight, indep.weight = (E(g1)$weight -1))
   g2.E <- data.frame(as_edgelist(g2),weight = E(g2)$weight, indep.weight = (E(g2)$weight -1))
 

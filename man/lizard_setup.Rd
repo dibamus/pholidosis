@@ -31,7 +31,7 @@ filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
 anelytropsis.adj <- read_excel(filepath, sheet = 1)
 
 # verify that all column and row names have matches
-anelytropsis.adj <- verifyMatrix(anelytropsis.adj) # they do,
+anelytropsis.adj <- verify_matrix(anelytropsis.adj) # they do,
 # and now there are row names
 
 anelytropsis.net <- scaleNetwork(anelytropsis.adj, lizard = FALSE)

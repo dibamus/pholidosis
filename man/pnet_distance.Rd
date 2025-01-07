@@ -13,7 +13,7 @@ pnet_distance(g1, g2, truncate = TRUE)
 
 \item{truncate}{A logical scalar. If TRUE (default), the function returns only
 the three distance measures. If false, it returns the distance measures and
-the data frames built by graphEditDist.}
+the data frames built by graph_edit_distance.}
 }
 \value{
 Either a named vector of length 3, containing:
@@ -24,7 +24,7 @@ Either a named vector of length 3, containing:
 between graphs g1 and g2.
 OR
 a list containing:
-topo - the distance measures and data frames built by graphEditDist
+topo - the distance measures and data frames built by graph_edit_distance
 measure - the named vector described above.
 }
 }
@@ -32,7 +32,7 @@ measure - the named vector described above.
 Measures the full graph edit distance between two graphs.
 }
 \details{
-This function calls graphEditDistance to get topology changes and also
+This function calls graph_edit_distance to get topology changes and also
 compares edge weights, presenting the total number of different nodes,
 different edges, and different edge weights.
 }

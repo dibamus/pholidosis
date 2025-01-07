@@ -1,4 +1,4 @@
-#' graphEditDist
+#' graph_edit_distance
 #'
 #' Graph edit distance, number of topological changes between two planar
 #' networks with mostly homologous vertices. This does not measure differences
@@ -6,8 +6,7 @@
 #'
 #' This function takes two graphs and measures edit distance between them,
 #' returning
-#' @import stringr tidyverse
-#' @importFrom igraph V E graph_from_edgelist as_edgelist shortest_paths as_undirected
+#' @import stringr tidyverse igraph
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
 #' @return A list containing
@@ -20,11 +19,11 @@
 #'
 #' @examples
 #' data("simpleGs")
-#' dist <- graphEditDist(simpleGs$g1,simplegs$g2)
+#' dist <- graph_edit_distance(simpleGs$g1,simplegs$g2)
 #' dist
 #'
 #' @export
-graphEditDist <- function(g1,g2){
+graph_edit_distance <- function(g1,g2){
 
   ##### 1 - Generate Edgelists ####
   g1.E <- as_edgelist(g1)
@@ -146,12 +145,12 @@ graphEditDist <- function(g1,g2){
   g2.cycles <- subgraph(g2,match(unrs.V,V(g2)$name))
 
   g1.cycles <- delete_edges(g1.cycles, #remove the unresolved edges
-                                   get.edge.ids(g1.cycles,
+                                   get_edge_ids(g1.cycles,
                                                 as.matrix(g1.unresolved[,1:2]) %>%
                                                   t() %>% c())
                                    )
   g2.cycles <- delete_edges(g2.cycles,
-                            get.edge.ids(g2.cycles,
+                            get_edge_ids(g2.cycles,
                                          as.matrix(g2.unresolved[,1:2]) %>%
                                            t() %>% c())
   )
@@ -175,25 +174,29 @@ graphEditDist <- function(g1,g2){
   # the small (true) cycle as well as the large (composite) one.
   # so let's get rid of any cycles that contain all of the vertices in another cycle
 
-  rmCy <- sapply(length(cl):2, function(x){ #starting from the longest cycle
-    nm <- names(cl[[cyclelengths$n[x]]])
+  if(length(cl) == 1){ #if there's only one cycle, don't even bother
+    rmCy = FALSE
+  }
 
-    # are any of the other cycles contained in it?
-    any(sapply((x-1):1, function(y){#search through the smaller cycles
-      if(x == y){
-        return(FALSE) # cycle y is NOT contained in cycle x
-      }
-      snm <- names(cl[[cyclelengths$n[y]]])
-      if(all(snm %in% nm)){
-        return(TRUE) # cycle y IS contained in cycle x
-      }
-      else{return(FALSE)} # cycle y is NOT contained in cycle x
-    }))
+  else{
+    rmCy <- sapply(length(cl):2, function(x){ #starting from the longest cycle
+      nm <- names(cl[[cyclelengths$n[x]]])
 
-  })
-
-  # rmCy is missing an entry for the smallest cycle
-  rmCy <- append(rmCy,FALSE)
+      # are any of the other cycles contained in it?
+      any(sapply((x-1):1, function(y){#search through the smaller cycles
+        if(x == y){
+          return(FALSE) # cycle y is NOT contained in cycle x
+        }
+        snm <- names(cl[[cyclelengths$n[y]]])
+        if(all(snm %in% nm)){
+          return(TRUE) # cycle y IS contained in cycle x
+        }
+        else{return(FALSE)} # cycle y is NOT contained in cycle x
+      }))
+    })
+    # rmCy is missing an entry for the smallest cycle
+    rmCy <- append(rmCy,FALSE)
+  }
 
   #and it's reversed relative to the order of cyclelengths
   # let's set that straight add the info about which cycles are composite to cyclelengths

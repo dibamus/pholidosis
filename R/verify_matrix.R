@@ -1,4 +1,4 @@
-#' verifyMatrix
+#' verify_matrix
 #'
 #' Find problems in an input adjacency matrix.
 #'
@@ -22,31 +22,31 @@
 #' anelytropsis.adj <- read_excel(filepath, sheet = 1)
 #'
 #' # verify that all column and row names have matches
-#' anelytropsis.adj <- verifyMatrix(anelytropsis.adj) #they do!
+#' anelytropsis.adj <- verify_matrix(anelytropsis.adj) #they do!
 #'
 #' # What about bad files?
 #' badmatrix <- system.file("extdata", "bad_matrix.xlsx", package = "pholidosis")
 #' badmat.adj <- read_excel(badmatrix, sheet = 1)
 #'
 #' # verify that all column and row names have matches
-#' badmat <- verifyMatrix(badmat.adj) #looks like some problems
+#' badmat <- verify_matrix(badmat.adj) #looks like some problems
 #' # column 2 is called "frontonasag" but it seems like it should be "frontonasal"
 #' # to match row 2
 #'
 #' # that's ok, I fixed it in the second sheet of this excel workbook...
 #' # let's load up sheet 2
-#' badmat2 <- verifyMatrix(read_excel(badmatrix, sheet = 2)) #whoops
+#' badmat2 <- verify_matrix(read_excel(badmatrix, sheet = 2)) #whoops
 #' # in row 7, column 20, there's a non-numeric entry.
 #' # once that's cleaned up, you should be able to import this file.
 #'
 #' # there's a cleared-up version in the third sheet of this excel workbook
 #'
-#' badmat3 <- verifyMatrix(read_excel(badmatrix, sheet = 3)) #seems good
+#' badmat3 <- verify_matrix(read_excel(badmatrix, sheet = 3)) #seems good
 #'
 #' badmat3 #looks like it worked!
 #' @export
 
-verifyMatrix <- function(df, verbose = FALSE, edgecodes = 1:3){
+verify_matrix <- function(df, verbose = FALSE, edgecodes = 1:3){
   df <- as.data.frame(df) #make sure it's not a tibble
   if(!has_rownames(df)){
     col1 <- colnames(df)[1]
@@ -55,8 +55,12 @@ verifyMatrix <- function(df, verbose = FALSE, edgecodes = 1:3){
 
   #is the matrix square?
   if(dim(df)[1] != dim(df)[2]){
-    which()
     warning("not a square matrix: ",dim(df)[1]," × ",dim(df)[1],"\n")
+    name_table <- table(unlist(dimnames(df)))
+    #which row/column names are blank or do not occur twice
+    suspect <- c(names(name_table)[which(name_table != 2 | name_table == "")])
+
+    return(data.frame(bad_rows = suspect))
   }
 
   #are all the column and row names matched?

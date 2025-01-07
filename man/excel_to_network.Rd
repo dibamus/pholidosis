@@ -11,7 +11,7 @@ excel_to_network(filename, verbose = FALSE, ...)
 
 \item{verbose}{A logical vector. If TRUE, funciton prints progress and errors.}
 
-\item{...}{other parameters, including a setup function for use by scaleNetwork()}
+\item{...}{other parameters, including a setup function for use by scale_nework()}
 }
 \value{
 A list of igraph objects, one for each sheet in the file.
@@ -20,8 +20,8 @@ A list of igraph objects, one for each sheet in the file.
 Import a scale network or many scale networks from an excel file.
 }
 \details{
-Calls verifyMatrix to troubleshoot and creates igraph objects using
-scaleNetwork.
+Calls verify_matrix to troubleshoot and creates igraph objects using
+scale_network.
 }
 \examples{
 

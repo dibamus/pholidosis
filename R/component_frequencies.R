@@ -4,7 +4,7 @@
 #'
 #' How often does each edge and each vertex appear in a dataset?
 #'
-#' @param charMat A character matrix created by the "morphoMatrix" function
+#' @param charMat A character matrix created by the "morpho_matrix" function
 #' @importFrom igraph as_edgelist
 #' @importFrom stringr str_split
 #' @return A list of two lists: "EdgeConsistency," the proportion of species in
@@ -13,7 +13,7 @@
 #'
 #' @examples
 #' data("simpleGs")
-#' mat <- morphoMatrix(simpleGs)
+#' mat <- morpho_matrix(simpleGs)
 #' freq <- component_frequencies(mat)
 #' freq
 #'

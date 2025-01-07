@@ -8,12 +8,12 @@
 #'
 #' @examples
 #' data("simpleGs")
-#' mat <- morphoMatrix(simpleGs)
+#' mat <- morpho_matrix(simpleGs)
 #' mat
 #'
 #' @export
 
-morphoMatrix <- function(gl){
+morpho_matrix <- function(gl){
   #first, make a matrix of all unique edges in the dataset
   alledges <- function(gl, f = matrix(nrow = 1, ncol = 2), i = 1){
     el <- as_edgelist(gl[[i]])
@@ -30,6 +30,8 @@ morphoMatrix <- function(gl){
   }
 
   #call that function, add a column to name each character
+  #`cur_data()` was deprecated in dplyr 1.1.0
+  # use pick() instead
   totalEdges <- alledges(gl) %>% mutate(character = paste(cur_data()[[1]],"+",cur_data()[[2]]))
 
   for(i in 1:length(gl)){

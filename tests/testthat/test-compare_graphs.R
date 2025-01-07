@@ -33,7 +33,7 @@ test_that("throws error when given graph",{
   expect_error(compare_graphs(g1, simpleGs[[2]]),"One or more arguments is not coercible to a matrix.")
 })
 
-test_that("throws error when wrong dimensions",{ #not sure why this isn't working...
+test_that("throws error when wrong dimensions",{ # not sure why this isn't working...
   library('igraph')
   data('simpleGs', package = 'pholidosis')
   g1 <- as_edgelist(simpleGs$g1)
