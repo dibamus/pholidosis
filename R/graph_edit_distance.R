@@ -91,7 +91,7 @@ graph_edit_distance <- function(g1,g2){
     df$altpath[!df$matched & !df$uniqueVs] <- spa(df[(!df$matched & !df$uniqueVs),1:2],
                                                   # jan 6 - removed this line
                                                   #cleangraph(difference(comparisongraph, graph)),
-                                                  as_undirected(difference(comparisongraph, graph), mode = 'mutual'),
+                                                  as_undirected(difference(comparisongraph, graph), mode = 'collapse'),
                                                   uV$g2)
 
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
@@ -127,12 +127,14 @@ graph_edit_distance <- function(g1,g2){
   g1.unresolved <- g1.df[g1.df$unresolved,]
   g2.unresolved <- g2.df[g2.df$unresolved,]
 
+
+
   #### BEGIN ALTERNATIVE APPROACH ####
   # This approach relies on a fully-triangulated graph
   # It detects cycles by creating a subgraph containing all of the vertices
   # that are involved in the unmatched edges.
   # Since both input graphs are fully triangulated, all vertices in the cycle
-  # that surrounds swapped edges must be represented by either the endes of
+  # that surrounds swapped edges must be represented by either the ends of
   # edges in g1 or the ends of edges in g2.
   # this is stable because there are no "perimeters" to the scale network. The
   # network is spherical, so even if, for instance, SL1 & SL3 are touching,

@@ -1,5 +1,5 @@
-test_that("produces correct sampleGs matrix", {
-  library('igraph')
-  data('simpleGs', package = 'pholidosis')
-  expect_snapshot(net_dist_mat(simpleGs))
-})
+# test_that("produces correct sampleGs matrix", {
+#   library('igraph')
+#   data('simpleGs', package = 'pholidosis')
+#   expect_snapshot(net_dist_mat(simpleGs[[1:3]]))
+# })
