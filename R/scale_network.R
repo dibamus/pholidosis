@@ -1,4 +1,4 @@
-#' scaleNetwork
+#' scale_network
 #'
 #' This loads a dataframe (df) of scale relationships as an igraph object
 #'
@@ -26,11 +26,11 @@
 #' library(readxl)
 #' filepath <- system.file("extdata", "DibamidaeDemo.xlsx", package = "pholidosis")
 #' anelytropsis.adj <- read_xlsx(filepath, sheet = 1, col_names = TRUE)
-#' anelytropsis.net <- scaleNetwork(anelytropsis.adj)
+#' anelytropsis.net <- scale_network(anelytropsis.adj)
 #'
 #' @export
 
-scaleNetwork <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
+scale_network <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
   if(any(colnames(df) == "bad.input.matrix")){ # verify_matrix found a matrix error
     if(verbose){cat(" not converted")}
     return(empty_graph())
