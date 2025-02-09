@@ -60,7 +60,11 @@ morpho_matrix <- function(gl, custom = FALSE){
 
   if(custom == FALSE){
     charMat <- charMat*2-1
+<<<<<<< HEAD
     charMat[which(is.na(charMat))] <- 0
+=======
+    charMat(which(is.na(charMat))) <- 0
+>>>>>>> 819981d6e8534ad9a37eba6c8e7b38822821cc8e
   }
   return(charMat)
 }
