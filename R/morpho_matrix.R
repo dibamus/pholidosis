@@ -1,6 +1,7 @@
 #' Generate a morphological character matrix from a list of graphs
 #' @import tidyverse dplyr
 #' @param gl A list of graphs
+#' @param custom A boolean; whether the matrix contains values other than 1, 1.5, and 2
 #' @return
 #' A n*e matrix, where n is the number of graphs in gl,
 #' and e is the total number of unique edges in gl.
@@ -13,7 +14,7 @@
 #'
 #' @export
 
-morpho_matrix <- function(gl){
+morpho_matrix <- function(gl, custom = FALSE){
   #first, make a matrix of all unique edges in the dataset
   alledges <- function(gl, f = matrix(nrow = 1, ncol = 2), i = 1){
     el <- as_edgelist(gl[[i]])
@@ -57,5 +58,10 @@ morpho_matrix <- function(gl){
 
   rownames(charMat) <- names(gl)
 
+  if(custom == FALSE){
+    charMat <- charMat*2-1
+
+    charMat(which(is.na(charMat))) <- 0
+  }
   return(charMat)
 }

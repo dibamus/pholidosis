@@ -4,10 +4,12 @@
 \alias{morpho_matrix}
 \title{Generate a morphological character matrix from a list of graphs}
 \usage{
-morpho_matrix(gl)
+morpho_matrix(gl, custom = FALSE)
 }
 \arguments{
 \item{gl}{A list of graphs}
+
+\item{custom}{A boolean; whether the matrix contains values other than 1, 1.5, and 2}
 }
 \value{
 A n*e matrix, where n is the number of graphs in gl,
