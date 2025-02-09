@@ -91,7 +91,7 @@ graph_edit_distance <- function(g1,g2){
     df$altpath[!df$matched & !df$uniqueVs] <- spa(df[(!df$matched & !df$uniqueVs),1:2],
                                                   # jan 6 - removed this line
                                                   #cleangraph(difference(comparisongraph, graph)),
-                                                  igraph::as_undirected(difference(comparisongraph, graph), mode = 'collapse'),
+                                                  as_undirected(difference(comparisongraph, graph), mode = 'collapse'),
                                                   uV$g2)
 
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
