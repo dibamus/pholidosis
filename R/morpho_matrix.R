@@ -60,8 +60,8 @@ morpho_matrix <- function(gl, custom = FALSE){
 
   if(custom == FALSE){
     charMat <- charMat*2-1
-    charMat[which(is.na(charMat))] <- 0
 
+    charMat[which(is.na(charMat))] <- 0
   }
   return(charMat)
 }
