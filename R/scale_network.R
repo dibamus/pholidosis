@@ -31,6 +31,7 @@
 #' @export
 
 scale_network <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fun = lizard_setup){
+
   if(any(colnames(df) == "bad.input.matrix")){ # verify_matrix found a matrix error
     if(verbose){cat(" not converted")}
     return(empty_graph())
@@ -68,7 +69,7 @@ scale_network <-  function(df, checkAsymmetry = FALSE, verbose = FALSE, setup_fu
   else{
     if (sym) { # yes, it is symmetric - complete the import
 
-      graph <- graph_from_adjacency_matrix(adjmatrix = mat, weighted = T, mode = "undirected")
+      graph <- graph_from_adjacency_matrix(adjmatrix = mat, weighted = T, mode = "max")
       graph <- clean_isolates(graph) #get rid of any isolated vertices
 
       #update the edge weights - they should range from 1-2, not 1-3

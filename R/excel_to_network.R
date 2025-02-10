@@ -34,5 +34,5 @@ excel_to_network <- function(filename, verbose = FALSE, ...) {
 
   #This is kind of hacky but it works to tell the user where problems are
   lapply(names(ls), FUN = function(x){if(verbose){cat("\n",x," - ")};
-    scale_network(ls[[x]], verbose = verbose)}) %>% setNames(sheets)
+    scale_network(ls[[x]], verbose = verbose, ...)}) %>% setNames(sheets)
 }
