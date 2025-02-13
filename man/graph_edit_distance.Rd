@@ -4,12 +4,14 @@
 \alias{graph_edit_distance}
 \title{graph_edit_distance}
 \usage{
-graph_edit_distance(g1, g2)
+graph_edit_distance(g1, g2, verbose = FALSE)
 }
 \arguments{
 \item{g1}{An igraph object; the first graph.}
 
 \item{g2}{An igraph object; the second graph.}
+
+\item{verbose}{logical; whether to print a data frame of matching cycles, helpful for debugging}
 }
 \value{
 A list containing

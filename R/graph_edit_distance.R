@@ -9,6 +9,7 @@
 #' @import stringr tidyverse igraph
 #' @param g1 An igraph object; the first graph.
 #' @param g2 An igraph object; the second graph.
+#' @param verbose logical; whether to print a data frame of matching cycles, helpful for debugging
 #' @return A list containing
 #'    1) g1.df - A data frame of topological changes to g1 and how they were resolved
 #'    2) g2.df - A data frame of topological changes to g2 and how they were resolved
@@ -23,7 +24,7 @@
 #' dist
 #'
 #' @export
-graph_edit_distance <- function(g1,g2){
+graph_edit_distance <- function(g1,g2, verbose = FALSE){
 
   ##### 1 - Generate Edgelists ####
   g1.E <- as_edgelist(g1)
@@ -127,136 +128,225 @@ graph_edit_distance <- function(g1,g2){
   g1.unresolved <- g1.df[g1.df$unresolved,]
   g2.unresolved <- g2.df[g2.df$unresolved,]
 
-
-
-  #### BEGIN ALTERNATIVE APPROACH ####
-  # This approach relies on a fully-triangulated graph
-  # It detects cycles by creating a subgraph containing all of the vertices
-  # that are involved in the unmatched edges.
-  # Since both input graphs are fully triangulated, all vertices in the cycle
-  # that surrounds swapped edges must be represented by either the ends of
-  # edges in g1 or the ends of edges in g2.
-  # this is stable because there are no "perimeters" to the scale network. The
-  # network is spherical, so even if, for instance, SL1 & SL3 are touching,
-  # in the other network there was an SL2-mouth connection, so the topology
-  # is the same as an edge swap between all scales.
-
   unrs.V <- unique(c(unlist(g1.unresolved[,1:2]),unlist(g2.unresolved[,1:2])))
 
   g1.cycles <- subgraph(g1,match(unrs.V,V(g1)$name)) #get the cycles around unmatched edges
   g2.cycles <- subgraph(g2,match(unrs.V,V(g2)$name))
 
-  g1.cycles <- delete_edges(g1.cycles, #remove the unresolved edges
-                                   get_edge_ids(g1.cycles,
-                                                as.matrix(g1.unresolved[,1:2]) %>%
-                                                  t() %>% c())
-                                   )
-  g2.cycles <- delete_edges(g2.cycles,
-                            get_edge_ids(g2.cycles,
-                                         as.matrix(g2.unresolved[,1:2]) %>%
-                                           t() %>% c())
-  )
+  #With those data, find the triangles surrounding the unresolved edges
+  # using what_two_triangles() and find any systems of connected edges
+  # that might be made up of unresolved edges.
 
-  consensus.cycles <- g1.cycles + g2.cycles
-
-  cl <- find_cycles(consensus.cycles, minlength = 4) %>%
-    lapply(FUN = function(x){x[-1]}) #remove the first vertex of each cycle (unnamed)
-
-  # #tester
-  # cl <- list(c(a = 1, b=2, c=3, d=4),
-  #            c(e=5,f=6,g=7,h=8),
-  #            c(a = 1, b=2, c=3, d=4,e=5,f=6,g=7,h=8),
-  #            c(a = 1, b=2, c=3, d=4,e=5,f=6,g=7,h=8))
-
-  cyclelengths <- data.frame(n = 1:length(cl), length = sapply(cl,length), matches = "none") %>%
-    arrange(length)
-
-  # There may be larger cycles in the graph, produced when 2 cycles touch.
-  # scanning through these later will double-count edges, since they're part of
-  # the small (true) cycle as well as the large (composite) one.
-  # so let's get rid of any cycles that contain all of the vertices in another cycle
-
-  if(length(cl) == 1){ #if there's only one cycle, don't even bother
-    rmCy = FALSE
-  }
-
-  else{
-    rmCy <- sapply(length(cl):2, function(x){ #starting from the longest cycle
-      nm <- names(cl[[cyclelengths$n[x]]])
-
-      # are any of the other cycles contained in it?
-      any(sapply((x-1):1, function(y){#search through the smaller cycles
-        if(x == y){
-          return(FALSE) # cycle y is NOT contained in cycle x
-        }
-        snm <- names(cl[[cyclelengths$n[y]]])
-        if(all(snm %in% nm)){
-          return(TRUE) # cycle y IS contained in cycle x
-        }
-        else{return(FALSE)} # cycle y is NOT contained in cycle x
-      }))
-    })
-    # rmCy is missing an entry for the smallest cycle
-    rmCy <- append(rmCy,FALSE)
-  }
-
-  #and it's reversed relative to the order of cyclelengths
-  # let's set that straight add the info about which cycles are composite to cyclelengths
-  cyclelengths$composite <- rev(rmCy)
-
-  #ok, let's get rid of these composite cycles
-  cyclelengths <- cyclelengths[!cyclelengths$composite,]
-
-
-  # Now I need to write a for loop that matches these cycles to edges from
-  # g1.unresolved and g2.unresolved.
-  # A cycle is cleared once all of its vertices are matched to a vertex from
-  # one of those dfs.
-  # the number of changes represented by each cycle is equal to the number of
-  # edges from g1 (or g2) that are matched to it
-   g1.unresolved$cycle <- NA
-   g2.unresolved$cycle <- NA
-
-  cyclelengths$matches <- sapply(1:dim(cyclelengths)[1],function(x){
-    cycle <- cl[[x]]
-    vn <- names(cycle)
-    matched <- rep("", length(vn))
-
-    for (i in 1:dim(g1.unresolved)[1]){
-      if(all(g1.unresolved[i,1:2] %in% vn)){
-        vn.remainder <- vn[!(vn %in% g1.unresolved[i,1:2])]
-        matched[which(vn %in% g1.unresolved[i,1:2])] <- paste0("g1","-",i)
-        g1.unresolved$cycle[i] <<- x
-        #the match is in row i of g1.unresolved
-        for (j in 1:dim(g2.unresolved)[1]){
-          if(all(g2.unresolved[j,1:2] %in% vn.remainder)){
-            vn.remainder <- vn.remainder[!(vn.remainder %in% g2.unresolved[j,1:2])]
-            g2.unresolved$cycle[j] <<- x
-            #the match is in row j of g2.unresolved
-            matched[which(vn %in% g2.unresolved[j,1:2])] <- paste0("g2","-",j)
-          }
-        }
-      }
+  #step 1 - find the triangles
+  g1.unresolved <- cbind(g1.unresolved, sapply(
+    1:dim(g1.unresolved)[1],
+    FUN = function(i) {
+      what_two_triangles(g1.cycles, g1.unresolved$X1[i], g1.unresolved$X2[i])
     }
-    return(list(matched))
-  })
+  )%>%t())
 
-  # note that
-  # 1) a vertex may be matched to more than one edge
-  # 2) the returned list includes only the most recent vertices to be matched.
+  #step 2 - find adjacent problem edges using get_sisteredges
+  g1.unresolved <- cbind(g1.unresolved, get_sisteredges(g1.unresolved[,c(1,2,9,10)]))
+
+  #step 3 - list out all of the vertices involved in a system of adjacent problem edges
+  g1.unresolved$groupnodes <- lapply(1:dim(g1.unresolved)[1], function(x){
+    g1.unresolved[g1.unresolved$sisters[[x]],c(1,2,9,10)] %>%
+      unlist() %>%
+      unique() %>% sort() %>% paste(collapse = "-")
+  })
+  g1.unresolved$groupnodes <- unlist(g1.unresolved$groupnodes)
+
+  #Repeat for g2
+  g2.unresolved <- cbind(g2.unresolved, sapply(
+    1:dim(g2.unresolved)[1],
+    FUN = function(i) {
+      what_two_triangles(g2.cycles, g2.unresolved$X1[i], g2.unresolved$X2[i])
+    }
+  )%>%t())
+
+  g2.unresolved <- cbind(g2.unresolved, get_sisteredges(g2.unresolved[,c(1,2,9,10)]))
+
+  g2.unresolved$groupnodes <- lapply(1:dim(g2.unresolved)[1], function(x){
+    g2.unresolved[g2.unresolved$sisters[[x]],c(1,2,9,10)] %>%
+      unlist() %>%
+      unique() %>% sort() %>% paste(collapse = "-")
+  })
+  g2.unresolved$groupnodes <- unlist(g2.unresolved$groupnodes)
+
+
+  topo.summary <- data.frame(table(sort(unlist(g1.unresolved$groupnodes))),
+                                       table(sort(unlist(g2.unresolved$groupnodes))))
+
+  topo.summary[,1] <- as.character(topo.summary[,1])
+  topo.summary[,3] <- as.character(topo.summary[,3])
+
+  if(verbose) {
+    print(topo.summary)
+  }
+
+  # do we find all of the same problem cycles and problem cycle frequencies in g1 and g2
+  if(all(topo.summary[,1] == topo.summary[,3]) &&
+     all(topo.summary[,2] == topo.summary[,4])){
+    topochanges <- sum(table(sort(unlist(g1.unresolved$groupnodes))))
+  }
+  else{
+    warning("Graphs are not topologically comparable; topo changes will be NA.")
+    topochanges <- NA
+  }
+
+
+
+
+
+  # #find all the systems of linked edges (sister groups)
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  # g1.cycles <- delete_edges(g1.cycles, #remove the unresolved edges
+  #                                  get_edge_ids(g1.cycles,
+  #                                               as.matrix(g1.unresolved[,1:2]) %>%
+  #                                                 t() %>% c())
+  #                                  )
+  # g2.cycles <- delete_edges(g2.cycles,
+  #                           get_edge_ids(g2.cycles,
+  #                                        as.matrix(g2.unresolved[,1:2]) %>%
+  #                                          t() %>% c())
+  # )
+  #
+  # consensus.cycles <- g1.cycles + g2.cycles
+  #
+  # #### Deal with the cycles -
+  # #### which ones are composites of the ones we actually care about? ####
+  # cl <- find_cycles(consensus.cycles, minlength = 5) %>%
+  #   lapply(FUN = function(x){x[-1]}) #remove the first vertex of each cycle (unnamed)
+  #
+  # # #tester
+  # # cl <- list(c(a = 1, b=2, c=3, d=4),
+  # #            c(e=5,f=6,g=7,h=8),
+  # #            c(a = 1, b=2, c=3, d=4,e=5,f=6,g=7,h=8),
+  # #            c(a = 1, b=2, c=3, d=4,e=5,f=6,g=7,h=8))
+  #
+  # cyclelengths <- data.frame(n = 1:length(cl),
+  #                            length = sapply(cl,length),
+  #                            matches = "none")
+  # cyclelengths$names <- lapply(cl, names)
+  #
+  # cyclelengths <- arrange(cyclelengths, length)
+  #
+  # # There may be larger cycles in the graph, produced when 2 cycles touch.
+  # # scanning through these later will double-count edges, since they're part of
+  # # the small (true) cycle as well as the large (composite) one.
+  # # so let's get rid of any cycles that contain all of the vertices in another cycle
+  #
+  # if(length(cl) == 1){ #if there's only one cycle, don't even bother
+  #   rmCy = FALSE
+  # }
+  #
+  # else{
+  #   rmCy <- sapply(length(cl):2, function(x){ #starting from the longest cycle
+  #     nm <- names(cl[[cyclelengths$n[x]]])
+  #
+  #     # are any of the other cycles contained in it?
+  #     any(sapply((x-1):1, function(y){#search through the smaller cycles
+  #       if(x == y){
+  #         return(FALSE) # cycle y is NOT contained in cycle x
+  #       }
+  #       snm <- names(cl[[cyclelengths$n[y]]])
+  #       if(all(snm %in% nm)){
+  #         return(TRUE) # cycle y IS contained in cycle x
+  #       }
+  #       else{return(FALSE)} # cycle y is NOT contained in cycle x
+  #     }))
+  #   })
+  #   # rmCy is missing an entry for the smallest cycle
+  #   rmCy <- append(rmCy,FALSE)
+  # }
+  #
+  # cyMat <- matrix(nrow = length(cl), ncol = length(cl))
+  #
+  # for(i in 1:length(cl)){
+  #   for(j in 1:length(cl)){
+  #     #are all of the nodes of cycle i part of cycle j?
+  #     #if yes, cycle j (columns in the matrix) should be removed
+  #     cyMat[i,j] <- all(names(cl[[i]]) %in% names(cl[[j]]))
+  #   }
+  # }
+  # #all entires on the diagonal must be true, so get rid of them
+  # diag(cyMat)<- FALSE
+  #
+  # trueCycles <- cl[!apply(cyMat, MARGIN = 2, FUN = any)]
+  #
+  # cyNames <- cyNames[!apply(cyMat, MARGIN = 2, FUN = any)]
+  #
+  #
+  # #and it's reversed relative to the order of cyclelengths
+  # # let's set that straight add the info about which cycles are composite to cyclelengths
+  # cyclelengths$composite <- rev(rmCy)
+  #
+  # #ok, let's get rid of these composite cycles
+  # cyclelengths <- cyclelengths[!cyclelengths$composite,]
+  #
+  #
+  # # Now I need to write a for loop that matches these cycles to edges from
+  # # g1.unresolved and g2.unresolved.
+  # # A cycle is cleared once all of its vertices are matched to a vertex from
+  # # one of those dfs.
+  # # the number of changes represented by each cycle is equal to the number of
+  # # edges from g1 (or g2) that are matched to it
+  #  g1.unresolved$cycle <- NA
+  #  g2.unresolved$cycle <- NA
+  #
+  # cyclelengths$matches <- sapply(1:dim(cyclelengths)[1],function(x){
+  #   cycle <- cl[[x]]
+  #   vn <- names(cycle)
+  #   matched <- rep("", length(vn))
+  #
+  #   for (i in 1:dim(g1.unresolved)[1]){
+  #     if(all(g1.unresolved[i,1:2] %in% vn)){
+  #       vn.remainder <- vn[!(vn %in% g1.unresolved[i,1:2])]
+  #       matched[which(vn %in% g1.unresolved[i,1:2])] <- paste0("g1","-",i)
+  #       g1.unresolved$cycle[i] <<- x
+  #       #the match is in row i of g1.unresolved
+  #       for (j in 1:dim(g2.unresolved)[1]){
+  #         if(all(g2.unresolved[j,1:2] %in% vn.remainder)){
+  #           vn.remainder <- vn.remainder[!(vn.remainder %in% g2.unresolved[j,1:2])]
+  #           g2.unresolved$cycle[j] <<- x
+  #           #the match is in row j of g2.unresolved
+  #           matched[which(vn %in% g2.unresolved[j,1:2])] <- paste0("g2","-",j)
+  #         }
+  #       }
+  #     }
+  #   }
+  #   return(list(matched))
+  # })
+  #
+  # # note that
+  # # 1) a vertex may be matched to more than one edge
+  # # 2) the returned list includes only the most recent vertices to be matched.
 
   #Add the cycle #s to the graph dfs
-  g1.df[dimnames(g1.unresolved)[[1]],"topochange"] <- g1.unresolved$cycle
-  g2.df[dimnames(g2.unresolved)[[1]],"topochange"] <- g2.unresolved$cycle
+  g1.df[dimnames(g1.unresolved)[[1]],"topochange"] <- g1.unresolved$groupnodes
+  g2.df[dimnames(g2.unresolved)[[1]],"topochange"] <- g2.unresolved$groupnodes
 
   #count the topo changes
   # the number of topo changes within a cycle is equal to the cycle length minus 3
 
-  cyclelengths$topochanges <- cyclelengths$length - 3
+  #cyclelengths$topochanges <- cyclelengths$length - 3
 
   # Tally changes
   nodeChanges <- sum(sapply(uniquevertices,length))
-  topoSwaps <- sum(cyclelengths$topochanges)
+  #topoSwaps <- sum(cyclelengths$topochanges)
+  topoSwaps <- topochanges
   newEdges <- 0
 
   return(list(
