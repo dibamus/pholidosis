@@ -173,6 +173,7 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
   })
   g2.unresolved$groupnodes <- unlist(g2.unresolved$groupnodes)
 
+<<<<<<< HEAD
 
   topo.summary <- data.frame(table(sort(unlist(g1.unresolved$groupnodes))),
                                        table(sort(unlist(g2.unresolved$groupnodes))))
@@ -196,6 +197,15 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
 
 
 
+=======
+  if(verbose) {
+    print(data.frame(table(sort(unlist(g1.unresolved$groupnodes))),
+             table(sort(unlist(g2.unresolved$groupnodes)))))
+  }
+
+  #the number of topological changes in the graph is equal to
+  topochanges <- sum(table(sort(unlist(g2.unresolved$groupnodes))))
+>>>>>>> 7534dce6a36245b07b840cc5d9c7eae3fbb46955
 
 
   # #find all the systems of linked edges (sister groups)
