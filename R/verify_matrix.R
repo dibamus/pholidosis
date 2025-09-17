@@ -6,7 +6,6 @@
 #' check every cell on.
 #'
 #' @import tidyverse
-#' @importFrom tibble has_rownames column_to_rownames
 #' @param df A data frame, the scale table.
 #' @param verbose A logical scalar. If TRUE, it prints progress & errors.
 #' @param edgecodes A character/integer vector of codes used to denote different
@@ -48,9 +47,14 @@
 
 verify_matrix <- function(df, verbose = FALSE, edgecodes = 1:3){
   df <- as.data.frame(df) #make sure it's not a tibble
-  if(!has_rownames(df)){
-    col1 <- colnames(df)[1]
-    df <- df %>% column_to_rownames(col1)
+
+  #steal line 48 from tibble::rownames.R to avoid importing from tibble
+  if(!(.row_names_info(.data) > 0L && !is.na(.row_names_info(.data, 0L)[[1L]]))){
+    # remove tibble imports
+    #col1 <- colnames(df)[1]
+    #df <- df %>% column_to_rownames(col1)
+    rownames(df) <- df[,1]
+    df <- df[,-1]
   }
 
   #is the matrix square?

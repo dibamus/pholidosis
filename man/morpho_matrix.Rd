@@ -14,7 +14,7 @@ morpho_matrix(gl, custom = FALSE)
 \value{
 A n*e matrix, where n is the number of graphs in gl,
 and e is the total number of unique edges in gl.
-An element, \link{n1,e1} is the weight of edge e1 in graph n1.
+An element, [n1,e1] is the weight of edge e1 in graph n1.
 }
 \description{
 Generate a morphological character matrix from a list of graphs

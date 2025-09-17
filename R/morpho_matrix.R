@@ -1,4 +1,5 @@
 #' Generate a morphological character matrix from a list of graphs
+#' @noMd
 #' @import tidyverse dplyr
 #' @param gl A list of graphs
 #' @param custom A boolean; whether the matrix contains values other than 1, 1.5, and 2

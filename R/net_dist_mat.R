@@ -1,4 +1,5 @@
 #' Generate distance matrix from gl
+#' @noMd
 #' @import utils
 #' @param gl A list of graphs.
 #' @return An n x n x 3 matrix, where n is the number of graphs in gl
