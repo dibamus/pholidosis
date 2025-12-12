@@ -21,12 +21,19 @@
 get_sisteredges <- function(input_matrix){
   l <- dim(input_matrix)[1]
 
+  #Make adjacency matrix for the input edges
   adjacent <- sapply(1:l, FUN = function(r){
     sapply(1:l, FUN = function(r2){
       all(input_matrix[r2,1:2] %in% input_matrix[r,])
     })
   })
 
+  #if there's only 1 input edge, make sure to still treat this as a matrix
+  if(l ==1){
+    adjacent <- matrix(adjacent, nrow = 1, ncol = 1)
+  }
+
+  #set the diagonals to false (each edge will be found to be adjacent to itself)
   diag(adjacent) <- F
 
   #figure out which lizard graph edges (nodes in adj_graph) are connected
