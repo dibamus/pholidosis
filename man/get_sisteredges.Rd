@@ -15,7 +15,7 @@ complete the 2 triangles surrounding the problem edge}
 A data frame of information about the groupings of problem edges
 }
 \description{
-For a set of problematic edges and their
+For a set of problematic edges and their vertices.
 }
 \details{
 This function takes a graph and vertex names of an edge and returns

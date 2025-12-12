@@ -25,28 +25,28 @@
 #'
 #' @export
 graph_edit_distance <- function(g1,g2, verbose = FALSE){
-
+  
   ##### 1 - Generate Edgelists ####
   g1.E <- as_edgelist(g1)
-
+  
   g2.E <- as_edgelist(g2)
-
+  
   #Which vertices in g1 and g2 are not shared?
   uniquevertices <- list(g1 = setdiff(V(g1)$name,V(g2)$name),
                          g2 = setdiff(V(g2)$name,V(g1)$name))
-
+  
   # remove an edge (e) from a graph, and then find the new shortest path between
   # those 2 vertices
-
+  
   spa <- function(df,g,uniqueV){
     if(dim(df)[1] ==0 | length(g) ==0){
       return(NA)
     }
-
+    
     l <- list()
     for(i in 1:dim(df)[1]){
       #here is where I should pare down g
-
+      
       if(all(df[i,1:2] %in% V(g)$name)){
         #make sure to trim shared vertices out of g if indicated
         if(length(uniqueV)!=0){
@@ -58,9 +58,9 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
         #and continue
         x <- suppressWarnings( # some vertices it tries may be unreachable, but that's ok
           shortest_paths(graph = g3,
-                            from = which(V(g3)$name == df[i,1]),
-                            to = which(V(g3)$name == df[i,2]),
-                            output = "vpath")$vpath[[1]])
+                         from = which(V(g3)$name == df[i,1]),
+                         to = which(V(g3)$name == df[i,2]),
+                         output = "vpath")$vpath[[1]])
         vs <- as_ids(x)
         nv <- vs[which(!(vs %in% df[i,1:2]))]
         if(length(nv)==0){
@@ -74,18 +74,18 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
     }
     return(l)
   }
-
+  
   #set up a data frame to compare the edges of a graph to the topology of another graph
   gAnalysis <- function(graph, comparisongraph){
     uV <- list(g1 = c(setdiff(V(graph)$name,V(comparisongraph)$name),"dummy name"),
                g2 = c(setdiff(V(comparisongraph)$name,V(graph)$name),"dummy name"))
     E <- list(g1 = as_edgelist(graph),
               g2 = as_edgelist(comparisongraph))
-
+    
     df <- data.frame(as_edgelist(graph))
     df$matched <- !is.na(compare_graphs(E$g1,E$g2))
     df$uniqueVs <- apply(df[,1:2], MARGIN = 1, function(x){any(x %in%uV$g1)})
-
+    
     #for unmatched edges: can you find a way between the nodes via the unmatched
     # edges in the comparison graph?
     df$altpath <- NA
@@ -94,23 +94,23 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
                                                   #cleangraph(difference(comparisongraph, graph)),
                                                   as_undirected(difference(comparisongraph, graph), mode = 'collapse'),
                                                   uV$g2)
-
+    
     df$altpath_allmissing <- sapply(df$altpath, FUN = function(x){all(x %in% uV$g2)})
     df$topochange <- NA
     #which edges of the graph cannot be resolved thorugh adding or subtracting vertices
     # to/from the comparison graph?
-
+    
     #an edge is unresolved if:
     df$unresolved <- !df$uniqueVs & #it does not contain unique vertices
       !df$altpath_allmissing & #there is no alternative path through only unique vertices
       !df$matched #it is not contained in the other graph
-
+    
     return(df)
   }
-
+  
   g1.df <- gAnalysis(g1,g2)
   g2.df <- gAnalysis(g2,g1)
-
+  
   if(!any(c(g1.df$unresolved,g2.df$unresolved))){ #no unresolved edges?
     #great, carry on
     return(list(
@@ -121,92 +121,129 @@ graph_edit_distance <- function(g1,g2, verbose = FALSE){
                        edge = 0)
     ))
   }
-
+  
   else{
-
-  # cut the df to just the edges that remain different after vertex changes are accounted for
-  g1.unresolved <- g1.df[g1.df$unresolved,]
-  g2.unresolved <- g2.df[g2.df$unresolved,]
-
-  unrs.V <- unique(c(unlist(g1.unresolved[,1:2]),unlist(g2.unresolved[,1:2])))
-
-  g1.cycles <- subgraph(g1,match(unrs.V,V(g1)$name)) #get the cycles around unmatched edges
-  g2.cycles <- subgraph(g2,match(unrs.V,V(g2)$name))
-
-  #With those data, find the triangles surrounding the unresolved edges
-  # using what_two_triangles() and find any systems of connected edges
-  # that might be made up of unresolved edges.
-
-  #step 1 - find the triangles
-  g1.unresolved <- cbind(g1.unresolved, sapply(
-    1:dim(g1.unresolved)[1],
-    FUN = function(i) {
-      what_two_triangles(g1.cycles, g1.unresolved$X1[i], g1.unresolved$X2[i])
+    #### WHERE ARE THE UNRESOLVED EDGES? ####
+    # cut the df to just the edges that remain different after vertex changes are accounted for
+    g1.unresolved <- g1.df[g1.df$unresolved,]
+    g2.unresolved <- g2.df[g2.df$unresolved,]
+    
+    #### WHERE ARE THE EDGES RESOLVED BY UNSHARED VERTICES? ####
+    # which edges in each graph are substituted by multiple edges through unique vertices in the other?
+    g1.replacementedges <- g1.df[g1.df$altpath_allmissing,]
+    g2.replacementedges <- g2.df[g2.df$altpath_allmissing,]
+    
+    # the rest of the algorithm compares subgraphs of g1 & g2
+    # in order to find shared cycles within which there have been edge swaps
+    #
+    # if g2 has a vertex that g1 lacks inserted into one of these cycles
+    # then the cycle will not be found in both graphs.
+    # so, we need to add an edge into g2 that completes that cycle 
+    # which has been interrupted by the insertion of an extra vertex in g2
+    
+    # and vice versa
+    
+    add_homologous_edge <- function(graph,edgematrix){
+      #graph is a graph
+      #edgematrix is an n x 2 matrix of edges between named (not mubered) vertices
+      #substitute numbers (needed by igraph) for names (input to function)
+      # transpose matrix; matrices are read by column first
+      # so the transposed matrix looks like
+      # v1 Vn  Vn3 ...
+      # v2 Vn2 Vn4 ...
+      
+      edgematrix.numeric <- t(matrix(match(edgematrix, names(V(graph))), ncol =2))
+      
+      #add in those edges
+      add_edges(graph, edgematrix.numeric)
+      
     }
-  )%>%t())
-
-  #step 2 - find adjacent problem edges using get_sisteredges
-  g1.unresolved <- cbind(g1.unresolved, get_sisteredges(g1.unresolved[,c(1,2,9,10)]))
-
-  #step 3 - list out all of the vertices involved in a system of adjacent problem edges
-  g1.unresolved$groupnodes <- lapply(1:dim(g1.unresolved)[1], function(x){
-    g1.unresolved[g1.unresolved$sisters[[x]],c(1,2,9,10)] %>%
-      unlist() %>%
-      unique() %>% sort() %>% paste(collapse = "-")
-  })
-  g1.unresolved$groupnodes <- unlist(g1.unresolved$groupnodes)
-
-  #Repeat for g2
-  g2.unresolved <- cbind(g2.unresolved, sapply(
-    1:dim(g2.unresolved)[1],
-    FUN = function(i) {
-      what_two_triangles(g2.cycles, g2.unresolved$X1[i], g2.unresolved$X2[i])
+    
+    g1.mod <- add_homologous_edge(g1, as.matrix(g2.replacementedges[,c("X1","X2")]))
+    g2.mod <- add_homologous_edge(g2, as.matrix(g1.replacementedges[,c("X1","X2")]))
+      
+  
+    #### FIND THE CYCLES OF EDGES SURROUNDING UNSHARED EDGES ####
+    unrs.V <- unique(c(unlist(g1.unresolved[,1:2]),unlist(g2.unresolved[,1:2])))
+    
+    g1.cycles <- subgraph(g1.mod,match(unrs.V,V(g1)$name)) #get the cycles around unmatched edges
+    g2.cycles <- subgraph(g2.mod,match(unrs.V,V(g2)$name))
+    
+    #With those data, find the triangles surrounding the unresolved edges
+    # using what_two_triangles() and find any systems of connected edges
+    # that might be made up of unresolved edges.
+    
+    #step 1 - find the triangles
+    g1.unresolved <- cbind(g1.unresolved, sapply(
+      1:dim(g1.unresolved)[1],
+      FUN = function(i) {
+        what_two_triangles(g1.cycles, g1.unresolved$X1[i], g1.unresolved$X2[i])
+      }
+    )%>%t())
+    
+    #step 2 - find adjacent problem edges using get_sisteredges
+    g1.unresolved <- cbind(g1.unresolved, get_sisteredges(g1.unresolved[,c(1,2,9,10)]))
+    
+    #step 3 - list out all of the vertices involved in a system of adjacent problem edges
+    g1.unresolved$groupnodes <- lapply(1:dim(g1.unresolved)[1], function(x){
+      g1.unresolved[g1.unresolved$sisters[[x]],c(1,2,9,10)] %>%
+        unlist() %>%
+        unique() %>% sort() %>% paste(collapse = "-")
+    })
+    g1.unresolved$groupnodes <- unlist(g1.unresolved$groupnodes)
+    
+    #Repeat for g2
+    g2.unresolved <- cbind(g2.unresolved, sapply(
+      1:dim(g2.unresolved)[1],
+      FUN = function(i) {
+        what_two_triangles(g2.cycles, g2.unresolved$X1[i], g2.unresolved$X2[i])
+      }
+    )%>%t())
+    
+    g2.unresolved <- cbind(g2.unresolved, get_sisteredges(g2.unresolved[,c(1,2,9,10)]))
+    
+    g2.unresolved$groupnodes <- lapply(1:dim(g2.unresolved)[1], function(x){
+      g2.unresolved[g2.unresolved$sisters[[x]],c(1,2,9,10)] %>%
+        unlist() %>%
+        unique() %>% sort() %>% paste(collapse = "-")
+    })
+    g2.unresolved$groupnodes <- unlist(g2.unresolved$groupnodes)
+    
+    topo.summary <- data.frame(table(sort(unlist(g1.unresolved$groupnodes))),
+                               table(sort(unlist(g2.unresolved$groupnodes))))
+    
+    topo.summary[,1] <- as.character(topo.summary[,1])
+    topo.summary[,3] <- as.character(topo.summary[,3])
+    
+    if(verbose) {
+      print(topo.summary)
     }
-  )%>%t())
-
-  g2.unresolved <- cbind(g2.unresolved, get_sisteredges(g2.unresolved[,c(1,2,9,10)]))
-
-  g2.unresolved$groupnodes <- lapply(1:dim(g2.unresolved)[1], function(x){
-    g2.unresolved[g2.unresolved$sisters[[x]],c(1,2,9,10)] %>%
-      unlist() %>%
-      unique() %>% sort() %>% paste(collapse = "-")
-  })
-  g2.unresolved$groupnodes <- unlist(g2.unresolved$groupnodes)
-
-  topo.summary <- data.frame(table(sort(unlist(g1.unresolved$groupnodes))),
-                                       table(sort(unlist(g2.unresolved$groupnodes))))
-
-  topo.summary[,1] <- as.character(topo.summary[,1])
-  topo.summary[,3] <- as.character(topo.summary[,3])
-
-  if(verbose) {
-    print(topo.summary)
+    
+    # do we find all of the same problem cycles and problem cycle frequencies in g1 and g2
+    if(all(topo.summary[,1] == topo.summary[,3]) &&
+       all(topo.summary[,2] == topo.summary[,4])){
+      topochanges <- sum(table(sort(unlist(g1.unresolved$groupnodes))))
+    }
+    else{
+      warning("Graphs are not topologically comparable; topo changes will be NA.")
+      topochanges <- NA
+    }
+    
+    #Add the cycle #s to the graph dfs
+    g1.df[dimnames(g1.unresolved)[[1]],"topochange"] <- g1.unresolved$groupnodes
+    g2.df[dimnames(g2.unresolved)[[1]],"topochange"] <- g2.unresolved$groupnodes
+    
+    # Tally changes
+    nodeChanges <- sum(sapply(uniquevertices,length))
+    #topoSwaps <- sum(cyclelengths$topochanges)
+    topoSwaps <- topochanges
+    newEdges <- 0
+    
+    return(list(
+      g1.df = g1.df,
+      g2.df = g2.df,
+      distances = list(node = nodeChanges, swap = topoSwaps, edge = newEdges)
+    ))
   }
-
-  # do we find all of the same problem cycles and problem cycle frequencies in g1 and g2
-  if(all(topo.summary[,1] == topo.summary[,3]) &&
-     all(topo.summary[,2] == topo.summary[,4])){
-    topochanges <- sum(table(sort(unlist(g1.unresolved$groupnodes))))
-  }
-  else{
-    warning("Graphs are not topologically comparable; topo changes will be NA.")
-    topochanges <- NA
-  }
-
-  #Add the cycle #s to the graph dfs
-  g1.df[dimnames(g1.unresolved)[[1]],"topochange"] <- g1.unresolved$groupnodes
-  g2.df[dimnames(g2.unresolved)[[1]],"topochange"] <- g2.unresolved$groupnodes
-
-  # Tally changes
-  nodeChanges <- sum(sapply(uniquevertices,length))
-  #topoSwaps <- sum(cyclelengths$topochanges)
-  topoSwaps <- topochanges
-  newEdges <- 0
-
-  return(list(
-    g1.df = g1.df,
-    g2.df = g2.df,
-    distances = list(node = nodeChanges, swap = topoSwaps, edge = newEdges)
-  ))
 }
-}
+

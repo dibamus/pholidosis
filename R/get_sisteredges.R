@@ -1,6 +1,6 @@
 #' get_sisteredges
 #'
-#' For a set of problematic edges and their
+#' For a set of problematic edges and their vertices.
 #'
 #' This function takes a graph and vertex names of an edge and returns
 #' vertex names for the 2 vertices which complete the 2 adjacent triangles
